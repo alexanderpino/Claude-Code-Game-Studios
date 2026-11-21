@@ -126,6 +126,7 @@ The rule for deciding which side a setting belongs on:
 | `features.token_budget_warn_at` | Your personal cost threshold |
 | `features.read_guard` | Whether your whole-file reads of large design docs are refused |
 | `features.read_guard_kb` | The size over which they are |
+| `features.agent_write_guard` | Whether a subagent's write outside `production/`, `docs/` and `tests/` is reported to you |
 | `updates.check` | Whether you see the new-release line; turning it off for you leaves it on for teammates |
 
 **Locked to `project.yaml`** (project-wide — would create artifact divergence if local):
@@ -2265,6 +2266,26 @@ By file size, not lines: token cost follows bytes, and one table row can be 2 KB
 
 ---
 
+## features.agent_write_guard
+
+**Controls:** Whether `validate-write.sh` warns when a subagent writes outside the subagent exception  
+**Values:** `on` | `off`; `true` and `false` also work  
+**Default:** `on`  
+**Set by:** `/project-settings`  
+**Read by:** `validate-write.sh` (PreToolUse Write and Edit), through `.claude/scripts/write-guard.sh check`
+
+> **Priority chain:** `features.agent_write_guard` in `project.local.yaml` →
+> `project.yaml` → default **`on`**. Any other value keeps the default.
+
+With `on`, a subagent's write that is not a new file under `production/`, `docs/`
+or `tests/` gets an `AGENT_WRITE` warning, the subagent exception of
+`.claude/rules/agent-memory.md`. With `off`, the hook leaves that rule out and
+runs the rest. It is for a project whose own process approves a subagent's
+writes before they happen, such as a plan the user reviewed that agents then
+build. The warning never blocks a write either way.
+
+---
+
 ## updates.check
 
 **Controls:** Whether session start tells you that a newer Claude Code Game
@@ -2562,6 +2583,7 @@ features:
   token_budget_warn_at: 0.7  # 0.0-1.0; warn at this context % usage
   read_guard: on             # on | off; true and false also work. Refuse whole-file reads of large design docs
   read_guard_kb: 40          # the size, in KB, over which they are refused
+  agent_write_guard: on      # on | off; true and false also work. Warn on a subagent's write outside production/, docs/ and tests/
 
 updates:
   check: true                # false: no new-release line at session start

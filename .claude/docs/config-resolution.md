@@ -104,7 +104,7 @@ wrong value diagnosable — `review_mode: solo (rigor:minimal)` when `project.ya
 
 | Step | Source | Applies to |
 |---|---|---|
-| 1 | `project.local.yaml` | any setting on the `/project-settings --local` whitelist (15 keys — `modes.review_mode`, `modes.automation`, `modes.automation_always_ask`, `team.size`, all five `testing.strict.*`, `performance.enforce`, `features.session_state`, `features.token_budget_warn_at`, `features.read_guard`, `features.read_guard_kb`, `updates.check`) |
+| 1 | `project.local.yaml` | any setting on the `/project-settings --local` whitelist (16 keys — `modes.review_mode`, `modes.automation`, `modes.automation_always_ask`, `team.size`, all five `testing.strict.*`, `performance.enforce`, `features.session_state`, `features.token_budget_warn_at`, `features.read_guard`, `features.read_guard_kb`, `features.agent_write_guard`, `updates.check`) |
 | 2 | `project.yaml` | all keys |
 | 3 | legacy plain-text mirror | `modes.review_mode` → `production/review-mode.txt`; `project.stage` → `production/stage.txt` |
 | 4 | **`modes.rigor` expansion** | the six knobs `rigor` fronts — `modes.workflow`, `docs.density`, `qa.level`, `modes.story_granularity`, `modes.review_mode`, `team.size` |

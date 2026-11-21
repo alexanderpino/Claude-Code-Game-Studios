@@ -554,6 +554,7 @@ testing.strict.ui::true|false
 testing.strict.config::true|false
 features.session_state::on|off
 features.read_guard::on|off|true|false
+features.agent_write_guard::on|off|true|false
 platform.online::true|false
 workflow_overrides.edge_cases::true|false
 workflow_overrides.tuning_knobs::true|false
@@ -576,7 +577,8 @@ updates.check::true|false"
 #     literal `off`, and effects-map documents `on`/`off`. Writing `false` there
 #     means ENABLED, which is why validating it matters. `features.read_guard`
 #     is not that case: read-guard.sh reads `true` and `false` as `on` and
-#     `off`, so all four are listed for it.
+#     `off`, so all four are listed for it, and for `features.agent_write_guard`,
+#     which write-guard.sh reads the same way.
 #   - `testing.strict` (the parent) is absent because its primary shape is a MAP
 #     of the five type keys; the bare scalar is only a back-compat form. Its
 #     effects-map `**Values:**` line documents the map, so enumerating the parent
@@ -608,6 +610,7 @@ features.session_state
 features.token_budget_warn_at
 features.read_guard
 features.read_guard_kb
+features.agent_write_guard
 updates.check"
 
 is_locally_overridable() {
