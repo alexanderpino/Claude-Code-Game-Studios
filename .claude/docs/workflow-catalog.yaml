@@ -2,7 +2,9 @@
 # Used by /next-step to determine where a user is and what comes next.
 #
 # Artifact checks:
-#   glob: file glob pattern — complete if ≥1 file matches (or min_count)
+#   glob: file glob pattern — complete if ≥1 file matches (or min_count).
+#         "{adr}" is the project's ADR files: docs.adr_dir and docs.adr_glob,
+#         default docs/architecture/adr-*.md (bash .claude/scripts/adr-files.sh list)
 #   pattern: text pattern that must appear in the file (checked after glob)
 #   min_count: minimum matching files required (default: 1)
 #   note: human-readable fallback when completion can't be auto-detected
@@ -220,7 +222,7 @@ phases:
         required: true
         repeatable: true
         artifact:
-          glob: "docs/architecture/adr-*.md"
+          glob: "{adr}"
           min_count: 3
         description: "Document key technical decisions as ADRs. Minimum 3 Foundation-layer ADRs required."
 
@@ -280,7 +282,7 @@ phases:
         repeatable: true
         engine: Custom
         artifact:
-          glob: "docs/architecture/adr-*.md"
+          glob: "{adr}"
           pattern: '^## Platform / Graphics-API Matrix'
         description: "/architecture-decision in engine mode, reviewed by CEA-ADR: memory and allocators, threading, job system, ECS, RHI and graphics API, render graph, platform layer, editor UI framework. Detected by the engine-mode section; /gate-check checks coverage and Accepted status"
 

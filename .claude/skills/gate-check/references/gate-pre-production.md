@@ -109,7 +109,7 @@ Reviewer for this block: `chief-engine-architect`, through gate **CEA-ADR**
       "MVP engine modules not named in `docs/architecture/architecture.md` or a
       module-layout ADR". A spec still holding only the template's `[...]`
       placeholders is present-but-empty (Section 5).
-- [ ] **Core engine ADRs Accepted.** ADRs in `docs/architecture/` with status
+- [ ] **Core engine ADRs Accepted.** ADRs (`bash .claude/scripts/adr-files.sh list`) with status
       `Accepted`, written in `/architecture-decision`'s engine mode (they carry
       the `## Memory`, `## Threading`, `## Latency & Frame Budget`,
       `## ABI / API Stability`, `## Determinism` and

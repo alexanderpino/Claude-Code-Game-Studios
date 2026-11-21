@@ -3,7 +3,7 @@ name: architecture-review
 description: "Traceability matrix mapping GDD requirements to ADRs. Finds gaps, cross-ADR conflicts, engine compatibility. PASS/CONCERNS/NOT ASSESSED/FAIL."
 argument-hint: "[focus: full | coverage | consistency | engine | rtm | single-gdd path/to/gdd.md]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(bash "*/.claude/skills/architecture-review/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/review-receipts.sh check *), Bash(bash .claude/scripts/review-receipts.sh hash *), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/registry.sh validate*)
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(bash "*/.claude/skills/architecture-review/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/review-receipts.sh check *), Bash(bash .claude/scripts/review-receipts.sh hash *), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/registry.sh validate*), Bash(bash .claude/scripts/adr-files.sh *)
 model: opus
 ---
 
@@ -41,6 +41,12 @@ Every `AskUserQuestion` call follows `.claude/docs/automation-modes.md`
 - `full` — full traceability matrix across all GDDs and all ADRs.
 - `standard` — reduced scope: architecture doc + critical ADRs only.
 - `minimal` — not applicable (no architecture doc required).
+
+**Where the ADRs are.** The phase files name the ADRs `docs/architecture/adr-*.md`,
+the default. Run `bash .claude/scripts/adr-files.sh where` once and, in every glob
+and command of every phase, use its `match` row (`docs.adr_dir` and
+`docs.adr_glob`, spelled to match in any case) in place of `docs/architecture/adr-*.md`. An
+`invalid` row means the ADR checks are NOT ASSESSED: say so, with its reason.
 
 ## Phase 1: Load Everything
 

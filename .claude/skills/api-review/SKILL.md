@@ -3,7 +3,7 @@ name: api-review
 description: "Custom engine: review a change to the engine's public surface — C++ headers, Rust pub API, C ABI. Classifies breaking, additive and deprecation; checks the deprecation window, migration note and sign-off."
 argument-hint: "[<base>..<head> | --working-tree] [--next <version>]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Agent, AskUserQuestion, Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git merge-base *), Bash(git rev-parse *), Bash(git tag --list*), Bash(git status *), Bash(bash "*/.claude/skills/api-review/../../hooks/yaml-helper.sh" resolve_config *)
+allowed-tools: Read, Glob, Grep, Write, Agent, AskUserQuestion, Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git merge-base *), Bash(git rev-parse *), Bash(git tag --list*), Bash(git status *), Bash(bash "*/.claude/skills/api-review/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/adr-files.sh list), Bash(bash .claude/scripts/adr-files.sh where)
 model: sonnet
 ---
 
@@ -48,7 +48,7 @@ ADR's status, and runs only read-only `git` commands.
 review" — not an approval.**
 
 1. List the inputs: the diff range, the public surface it touches (Phase 2),
-   the ADRs under `docs/architecture/`, any existing migration note under
+   the ADRs (`bash .claude/scripts/adr-files.sh list`), any existing migration note under
    `docs/engine/migration/`, and the engine release tags.
 2. Record each `FOUND` or `ABSENT` — not "assumed present".
 3. A check whose input is ABSENT reads **`NOT ASSESSED — <reason>`**. It is

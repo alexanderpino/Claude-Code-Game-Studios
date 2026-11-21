@@ -14,8 +14,8 @@ ADR from `Proposed` to `Accepted`. Authoring always produces `Proposed`
 all require `Accepted` — so without this mode an ADR would enter a state it
 never leaves.
 
-1. **Resolve the id to a file, then read it.** Glob
-   `docs/architecture/adr-NNNN-*.md` for the given number. If **no** file matches,
+1. **Resolve the id to a file, then read it.** Take
+   the `file` row of `bash .claude/scripts/adr-files.sh list` for the given number. If **no** file matches,
    or **more than one** does, stop and say which — do not pick one. If the file
    has no `## Status` section, stop and say so; a missing Status is exactly what
    retrofit mode is for.

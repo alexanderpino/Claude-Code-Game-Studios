@@ -37,7 +37,8 @@
 #                    production/localization/freeze-status.md says ACTIVE
 #   agent PATH --agent TYPE [--existed yes|no]
 #                    a subagent's write outside the exception: only a new file
-#                    under production/, docs/ or tests/
+#                    under production/, docs/ or tests/; nothing when
+#                    features.agent_write_guard is off
 #   artifact PATH... each path a return contract named: there or missing
 #   git              stdin: one shell command segment per line; each whose
 #                    command (after VAR=value words and sudo-like wrappers) is
@@ -185,6 +186,20 @@ if [ "$ROOTS" = "." ]; then
   done
   # No code folder yet: nothing on disk to cross into.
   [ -n "$ROOTS" ] || ROOTS="engine game src"
+fi
+
+# features.agent_write_guard: project.local.yaml, then project.yaml, then on.
+# `off` (or `false`) is for a project whose own process approves a subagent's
+# writes; any other value keeps the default.
+AGENT_GUARD=on
+if [ -f "$HERE/yaml-get.awk" ]; then
+  for _wgf in project.local.yaml project.yaml; do
+    [ -f "$_wgf" ] || continue
+    case "$(YG_PATH=features.agent_write_guard awk -f "$HERE/yaml-get.awk" "$_wgf")" in
+      on|true) break ;;
+      off|false) AGENT_GUARD=off; break ;;
+    esac
+  done
 fi
 
 APPLIED=""
@@ -384,6 +399,7 @@ rule_freeze() {
 # ---------------------------------------------------------------------- agent
 rule_agent() {
   [ -n "$AGENT" ] || return 0
+  [ "$AGENT_GUARD" = on ] || return 0
   applied agent
   case "$1" in
     # Agent memory and session-state appends need no approval

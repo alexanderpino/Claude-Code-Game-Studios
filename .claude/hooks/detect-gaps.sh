@@ -302,15 +302,26 @@ fi
 
 # --- Check 3: Core systems without architecture docs ---
 if [ "$DOC_CHECKS" = true ] && [ -n "$CODE_ROOT" ] && { [ -d "$CODE_ROOT/core" ] || [ -d "$CODE_ROOT/engine" ]; }; then
-  if [ ! -d "docs/architecture" ]; then
+  # The ADR location (docs.adr_dir, docs.adr_glob): adr_location and adr_files
+  # in yaml-helper.sh, sourced above when project.yaml exists and here otherwise.
+  command -v adr_location >/dev/null 2>&1 || { [ -f .claude/hooks/yaml-helper.sh ] && . .claude/hooks/yaml-helper.sh; }
+  _DG_ADR_SET=false
+  command -v adr_location >/dev/null 2>&1 && ! adr_location && _DG_ADR_SET=invalid
+  [ "$_DG_ADR_SET" = false ] && { [ "${_YH_ADR_DIR_SRC:-default}" != default ] || [ "${_YH_ADR_GLOB_SRC:-default}" != default ]; } && _DG_ADR_SET=true
+  if [ "$_DG_ADR_SET" = invalid ]; then
+    echo "ℹ️  NOT CHECKED: the ADR location is invalid ($_YH_ADR_WHY)."
+    echo "    Check 3 (architecture docs for core systems) did NOT run."
+    echo "    Suggested action: fix docs.adr_dir or docs.adr_glob in project.yaml, or remove them to use docs/architecture/adr-*.md"
+  elif [ "$_DG_ADR_SET" = false ] && [ ! -d "docs/architecture" ]; then
     echo "⚠️  GAP: Core engine/systems exist but no docs/architecture/ directory"
     echo "    Suggested action: Create docs/architecture/ and run /architecture-decision"
   else
     # Custom keeps module specs, frame-budget.md and memory-invariants.md in
-    # docs/architecture/ too: count only the ADRs there (adr-*.md, as
-    # project-state.sh does). Other engines count as at the base release.
-    if [ "${_DG_EN:-}" = custom ]; then
-      ADR_COUNT=$(find docs/architecture -maxdepth 1 -type f -name "adr-*.md" 2>/dev/null | wc -l)
+    # docs/architecture/ too, and a project that sets the location keeps its
+    # ADRs where it says: count only the ADRs (adr_files, as project-state.sh
+    # does). Other engines count as at the base release.
+    if [ "${_DG_EN:-}" = custom ] || [ "$_DG_ADR_SET" = true ]; then
+      ADR_COUNT=$(adr_files | awk 'NF' | wc -l)
     else
       ADR_COUNT=$(find docs/architecture -type f -name "*.md" 2>/dev/null | wc -l)
     fi

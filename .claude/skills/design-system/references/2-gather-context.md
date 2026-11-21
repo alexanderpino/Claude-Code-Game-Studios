@@ -192,9 +192,11 @@ which you picked.
   > hit the absent branch every time: report it every time.
 - Read `docs/engine-reference/[engine]/breaking-changes.md` for domain-relevant entries
 - Find the domain-matching ADRs without reading every ADR to learn the field you
-  filter on — grep the Domain field first, then read only the matches:
+  filter on — grep the Domain field first, then read only the matches (`[adrs]`:
+  the `match` row of `bash .claude/scripts/adr-files.sh where`, the ADRs in any
+  case, default `docs/architecture/adr-*.md`):
   ```
-  Grep pattern="\*\*Domain\*\*" glob="docs/architecture/adr-*.md" output_mode="content"
+  Grep pattern="\*\*Domain\*\*" glob="[adrs]" output_mode="content"
   ```
   Read only the ADRs whose Domain matches this system's category (its `## Decision`
   and `## Engine Compatibility` sections); skip the rest.

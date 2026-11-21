@@ -34,8 +34,8 @@ categories always ask).
 
 ### ADRs
 
-`bash .claude/scripts/adr-status.sh` reads every `docs/architecture/adr-*.md` in one
-pass: the counts first (`adrs`, then `accepted`, `proposed`, `deprecated`,
+`bash .claude/scripts/adr-status.sh` reads every ADR (`docs.adr_dir` and
+`docs.adr_glob`, default `docs/architecture/adr-*.md`) in one pass: the counts first (`adrs`, then `accepted`, `proposed`, `deprecated`,
 `superseded`, `unfilled`, `other`, `no_status`), then one row per ADR with its
 status and layer. Establish the denominator first: decide from the counts, before
 reading any ADR:
@@ -80,8 +80,10 @@ Report: "Loaded [A] Accepted ADRs of [N], engine: [name + version]."
 For each ADR in **A**, read only four sections, never the whole file:
 
 ```
-bash .claude/scripts/md-section.sh extract docs/architecture/[adr-file].md "Decision"
+bash .claude/scripts/md-section.sh extract "[ADR path]" "Decision"
 ```
+
+(`[ADR path]`: the path on the ADR's `adr-status.sh` row)
 
 and the same for `Alternatives Considered`, `Performance Implications` and `Engine
 Compatibility`. Context, Consequences, Migration Plan and Validation Criteria say why

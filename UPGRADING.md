@@ -173,6 +173,13 @@ Best when: you didn't use git to set up the template (just downloaded a zip).
 3. For files under **"Merge carefully"**, open both versions side-by-side
    and manually merge the structural changes while keeping your content.
 
+`scripts/adopt.sh` and `scripts/adopt.ps1`, run from a clean clone of the new
+version, do step 2 for the framework-owned paths under `.claude/` and keep the
+files that are yours: `.claude/settings.json` and `.claude/agent-models.yaml`
+(with the new version's copy written beside each for you to merge),
+`technical-preferences.md`, `CLAUDE.md` and `project.yaml`;
+[ADOPTING.md](ADOPTING.md#updating) says how.
+
 ---
 
 ## Unreleased (after v1.3.0)
@@ -220,7 +227,10 @@ on every engine, from one table (`.claude/agent-models.yaml`).
 ### Files: Safe to Overwrite
 
 Take `.claude/agents/`, `.claude/skills/`, `.claude/rules/`, `.claude/hooks/`,
-`.claude/scripts/`, `.claude/engines/` and `.claude/genres/` whole, as for v1.3.0. Take
+`.claude/scripts/`, `.claude/engines/` and `.claude/genres/` whole, as for v1.3.0, and
+`.claude/statusline.sh`. `ADOPTING.md`, `scripts/adopt.sh` and `scripts/adopt.ps1`
+are new: this repository's guide and copy scripts for adopting the framework
+into another project, which that project does not need. Take
 `.claude/docs/` whole except `.claude/docs/technical-preferences.md`, which is
 yours and unchanged in this release. Take `studio-tests/` (the catalog, the new
 agent and skill specs and the check files; if you wrote specs there, see v1.3.0's

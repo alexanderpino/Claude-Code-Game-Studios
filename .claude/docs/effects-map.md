@@ -126,6 +126,7 @@ The rule for deciding which side a setting belongs on:
 | `features.token_budget_warn_at` | Your personal cost threshold |
 | `features.read_guard` | Whether your whole-file reads of large design docs are refused |
 | `features.read_guard_kb` | The size over which they are |
+| `features.agent_write_guard` | Whether a subagent's write outside `production/`, `docs/` and `tests/` is reported to you |
 | `updates.check` | Whether you see the new-release line; turning it off for you leaves it on for teammates |
 
 **Locked to `project.yaml`** (project-wide — would create artifact divergence if local):
@@ -144,6 +145,7 @@ The rule for deciding which side a setting belongs on:
 | `modes.workflow` and `workflow_overrides` | Affects which sections are required in authored docs |
 | `modes.story_granularity` | Affects how big stories are in repo — team must be consistent |
 | `docs.density` | Affects how deep authored docs are — team must produce consistent docs |
+| `docs.adr_dir`, `docs.adr_glob` | Where the ADRs are on disk — every skill and hook must find the same ones |
 | `qa.level` | Affects what test evidence stories must include on disk |
 | `qa.coverage_minimum` | Project quality bar |
 | `strict_gate_checks` | Affects whether `project.stage` advances — a project-wide write |
@@ -1764,6 +1766,65 @@ is **invalid** with the reason, and never falls back to the engine's folder.
 
 ---
 
+## docs.adr_dir
+
+**Controls:** The folder that holds the ADRs (architecture decision records)  
+**Values:** a folder path relative to the project root, with `/`, such as
+`docs/architecture/decisions`; `.` for the project root itself  
+**Default:** `docs/architecture`  
+**Set by:** hand, or `/project-settings docs.adr_dir=<folder>`. `project.yaml` only:
+never read from `project.local.yaml`, which reports it  
+**Read by:** `adr_location` and `adr_files` in `yaml-helper.sh`, through
+`.claude/scripts/adr-files.sh` (so `adr-status.sh`, `adr-dep-graph.sh`,
+`registry.sh next-id adr`, `project-state.sh`'s `adr` row and `artifact-check.sh`'s
+`{adr}` steps), `session-start.sh` and `pre-compact.sh` (the Custom engine
+context), `detect-gaps.sh` (Check 3), `statusline.sh`, and the skills that read or
+write ADRs
+
+The ADRs are the files directly in this folder, not in its subfolders, whose
+name matches `docs.adr_glob`. A value that cannot be used — no such folder,
+different capitals on disk, `..`, an absolute path, or a value that opens with
+`[` or `{` (a list, a mapping or a `[...]` placeholder) — makes the location
+**invalid**: every ADR check reports NOT ASSESSED with the reason, and nothing
+falls back to `docs/architecture`, where a typo would find no ADRs and read as
+none. Other documents may stay in `docs/architecture/` (`architecture.md`,
+`tr-registry.yaml`, `control-manifest.md`, module specs); only the ADRs move.
+
+---
+
+## docs.adr_glob
+
+**Controls:** Which file names in `docs.adr_dir` are ADRs  
+**Values:** a file-name pattern with `*`, `?` and `[...]` classes, without a
+folder, such as `ADR-*.md` (quote one that opens with a class:
+`"[0-9][0-9][0-9][0-9]-*.md"`); letters outside a class match without regard to
+case, so `adr-*.md` and `ADR-*.md` find the same files  
+**Default:** `adr-*.md`  
+**Set by:** hand, or `/project-settings docs.adr_glob=<pattern>`. `project.yaml` only,
+like `docs.adr_dir`  
+**Read by:** the same readers as `docs.adr_dir`
+
+A new ADR is named after the pattern: its text before the first `*`, the number,
+a slug, and its text after the last `*` (`adr-*.md` gives `adr-0004-<slug>.md`,
+`ADR-*.md` gives `ADR-0004-<slug>.md`); `adr-files.sh` prints that name on its
+`new` row. ADR ids are read from the file name as `adr-<number>` in any case, so
+the names carry one (`ADR-0003-layered-modules.md`). A pattern with a `/` or `\`,
+or one that is a list, a mapping or a `[...]` placeholder (it opens with `{`,
+holds `, `, or opens with `[` and ends at its first `]`), is **invalid**,
+reported as for `docs.adr_dir`.
+
+The match itself is one glob: `adr-files.sh` prints it on its `match` row, the
+folder and the pattern with each letter outside a class spelled as both cases
+(`docs/architecture/[Aa][Dd][Rr]-*.[Mm][Dd]`). The `file` rows are exactly what
+it matches, so a skill that hands it to Grep's `glob=` or to a bash command,
+both case-sensitive, sees the same ADRs as the scripts.
+
+An ADR's status is the first word under its `## Status` heading, any case and
+with punctuation after it dropped (`Accepted.` is Accepted); an ADR without that
+section may give it as `status:` in YAML front matter instead.
+
+---
+
 ## engine.name and specialists
 
 **Controls:** Which engine-specific specialist agents are routed to for code
@@ -2265,6 +2326,26 @@ By file size, not lines: token cost follows bytes, and one table row can be 2 KB
 
 ---
 
+## features.agent_write_guard
+
+**Controls:** Whether `validate-write.sh` warns when a subagent writes outside the subagent exception  
+**Values:** `on` | `off`; `true` and `false` also work  
+**Default:** `on`  
+**Set by:** `/project-settings`  
+**Read by:** `validate-write.sh` (PreToolUse Write and Edit), through `.claude/scripts/write-guard.sh check`
+
+> **Priority chain:** `features.agent_write_guard` in `project.local.yaml` →
+> `project.yaml` → default **`on`**. Any other value keeps the default.
+
+With `on`, a subagent's write that is not a new file under `production/`, `docs/`
+or `tests/` gets an `AGENT_WRITE` warning, the subagent exception of
+`.claude/rules/agent-memory.md`. With `off`, the hook leaves that rule out and
+runs the rest. It is for a project whose own process approves a subagent's
+writes before they happen, such as a plan the user reviewed that agents then
+build. The warning never blocks a write either way.
+
+---
+
 ## updates.check
 
 **Controls:** Whether session start tells you that a newer Claude Code Game
@@ -2488,6 +2569,8 @@ workflow_overrides:
 
 docs:
   density: balanced          # terse | balanced | thorough
+  adr_dir: docs/architecture # the folder that holds the ADRs
+  adr_glob: adr-*.md         # their file names, any case; ADR-*.md works too
 
 testing:
   framework: gdunit4         # engine-specific — auto-populated by /setup-engine
@@ -2562,6 +2645,7 @@ features:
   token_budget_warn_at: 0.7  # 0.0-1.0; warn at this context % usage
   read_guard: on             # on | off; true and false also work. Refuse whole-file reads of large design docs
   read_guard_kb: 40          # the size, in KB, over which they are refused
+  agent_write_guard: on      # on | off; true and false also work. Warn on a subagent's write outside production/, docs/ and tests/
 
 updates:
   check: true                # false: no new-release line at session start
