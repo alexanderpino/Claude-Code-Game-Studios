@@ -87,6 +87,7 @@ clutter, not evidence.
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Adopting into an existing project](ADOPTING.md) — copy the framework into a repository you already have, with one script
 - [Engines](#engines)
 - [Configuration](#configuration)
 - [Upgrading](#upgrading)
@@ -116,6 +117,10 @@ clutter, not evidence.
 Hooks fail gracefully if optional tools are missing — you just lose validation — with one deliberate exception: a commit that stages data JSON is blocked when there is no Python to validate it.
 
 ### Setup
+
+Already have a project or a repository of its own? [ADOPTING.md](ADOPTING.md)
+copies the framework into it with `scripts/adopt.sh` or `scripts/adopt.ps1` and
+says what to merge by hand.
 
 1. **Clone or use as template**:
    ```bash
@@ -321,6 +326,8 @@ tests/                              # Test suites (unit, integration, performanc
 tools/                              # Build and pipeline tools
 production/                         # Sprint plans, milestones, release tracking
 studio-tests/                       # QA for the skills and agents themselves — see below
+scripts/                            # adopt.sh and adopt.ps1: copy the framework into
+                                    #   another project (ADOPTING.md)
 ```
 
 ### Testing your customizations
