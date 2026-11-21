@@ -29,6 +29,9 @@
 #                   .claude/hooks/yaml-helper.sh; never defaults to src. A bad
 #                   engine.code_root prints `-` and `invalid: <reason>`
 #   source_files    `unknown` when code_root is unset or invalid: unknown is not zero
+#   adr             the ADRs adr-files.sh lists (docs.adr_dir/docs.adr_glob,
+#                   default docs/architecture/adr-*.md); `unknown` and
+#                   `invalid: <reason>` when a value cannot be used
 #   stage_yaml      project.stage in project.yaml as written (even if invalid)
 #   stage_txt       first non-blank line of production/stage.txt as written
 #   stage           the resolved stage: a valid stage_yaml, else a valid
@@ -278,7 +281,20 @@ SYSIDX=""
 [ -f design/gdd/systems-index.md ] && SYSIDX="design/gdd/systems-index.md"
 
 GDD=$(count design/gdd -maxdepth 1 -type f -name '*.md')
-ADR=$(count docs/architecture -maxdepth 1 -type f -name 'adr-*.md')
+# The ADRs adr-files.sh lists (docs.adr_dir and docs.adr_glob); `unknown` with
+# the reason when a value cannot be used: unknown is not zero.
+ADR_LOC=$(bash "$HERE/adr-files.sh" --root . list)
+ADR_RC=$?
+adr_loc() { printf '%s\n' "$ADR_LOC" | awk -F'\t' -v k="$1" '$1 == k { print $2 }'; }
+if [ "$ADR_RC" = 0 ]; then
+  ADR=$(adr_loc file | awk 'NF' | wc -l | tr -d ' ')
+  ASRC="$(adr_loc dir)/$(adr_loc glob)"
+  case "$ASRC" in ./*) ASRC="${ASRC#./}" ;; esac
+else
+  ADR="unknown"
+  ASRC="invalid: $(adr_loc invalid)"
+  [ "$ADR_RC" = 3 ] || ASRC="invalid: adr-files.sh exited $ADR_RC"
+fi
 STORY=$(count production/epics -type f -name 'story-*.md')
 PROTO=$(count prototypes -mindepth 1 -maxdepth 1 -type d)
 SPRINT=$(count production/sprints -maxdepth 1 -type f -name '*.md')
@@ -300,7 +316,7 @@ row source_files "$SRC_FILES" "$SSRC"
 row concept "$CONCEPT" "$( [ -n "$CONCEPT" ] && echo found || echo absent )"
 row systems_index "$SYSIDX" "$( [ -n "$SYSIDX" ] && echo found || echo absent )"
 row gdd_files "$GDD" "design/gdd/*.md"
-row adr "$ADR" "docs/architecture/adr-*.md"
+row adr "$ADR" "$ASRC"
 row story "$STORY" "production/epics/**/story-*.md"
 row prototype "$PROTO" "prototypes/*/"
 row sprint "$SPRINT" "production/sprints/*.md"
@@ -313,10 +329,11 @@ stage_rows
 SRC_MIN=10
 NOTE=""
 [ "$SRC_FILES" = "unknown" ] && NOTE=";source_files unknown"
+[ "$ADR" = "unknown" ] && NOTE="$NOTE;adr unknown"
 if [ "$SRC_FILES" != "unknown" ] && [ "$SRC_FILES" -ge "$SRC_MIN" ]; then
   row phase_inferred production "source_files>=$SRC_MIN"
 elif [ "$STORY" -ge 1 ]; then row phase_inferred pre-production "story>=1$NOTE"
-elif [ "$ADR" -ge 1 ]; then row phase_inferred technical-setup "adr>=1$NOTE"
+elif [ "$ADR" != "unknown" ] && [ "$ADR" -ge 1 ]; then row phase_inferred technical-setup "adr>=1$NOTE"
 elif [ -n "$SYSIDX" ]; then row phase_inferred systems-design "systems_index$NOTE"
 elif [ -n "$CONCEPT" ]; then row phase_inferred concept "concept$NOTE"
 else row phase_inferred concept "nothing$NOTE"

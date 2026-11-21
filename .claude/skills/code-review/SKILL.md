@@ -3,7 +3,7 @@ name: code-review
 description: "Architectural review of written code: coding standards, SOLID, testability, performance."
 argument-hint: "[path-to-file-or-directory]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Bash(git log *), Agent, AskUserQuestion, Bash(bash "*/.claude/skills/code-review/../../hooks/yaml-helper.sh" resolve_config *)
+allowed-tools: Read, Glob, Grep, Bash(git log *), Agent, AskUserQuestion, Bash(bash "*/.claude/skills/code-review/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/adr-status.sh *)
 model: sonnet
 ---
 
@@ -86,7 +86,7 @@ Look for patterns like `ADR-NNNN` or `docs/architecture/adr-` (either case).
 
 If no ADR references found, note: "No ADR references found — ADR compliance check skipped. For full ADR compliance review, provide the story path: `/code-review [files] [story-path]`."
 
-For each referenced ADR, load **only the sections this check needs — never an unbounded full read.** A substantial ADR exceeds the 25k-token read cap, and a capped read's only recovery is paging the remainder — the most expensive way to read a file. Use the same pattern as `/dev-story` and `/create-stories`:
+For each referenced ADR (`bash .claude/scripts/adr-status.sh ADR-NNNN` prints its file), load **only the sections this check needs — never an unbounded full read.** A substantial ADR exceeds the 25k-token read cap, and a capped read's only recovery is paging the remainder — the most expensive way to read a file. Use the same pattern as `/dev-story` and `/create-stories`:
 
 1. **Map the headings** (cheap — line numbers only): grep the ADR for `^## ` with line numbers
 2. **Bounded-read only `## Decision` and `## Consequences`**, using the line numbers to set offset-and-limit read spans that end where the next heading begins. If the heading map is empty (a nonstandard ADR predating the template), fall back to one full read; if that truncates at the cap, grep for the decision/consequence content directly rather than paging the remainder.
@@ -283,5 +283,5 @@ Ask:
     - `[B] Stop here`
 
 If an ARCHITECTURAL VIOLATION is found:
-- If the violation contradicts an **existing ADR**: fix the implementation to comply with `docs/architecture/[adr-file].md`. If the design has legitimately changed, run `/architecture-decision` to formally *revise* the existing ADR — do not create a competing one.
+- If the violation contradicts an **existing ADR**: fix the implementation to comply with that ADR's file. If the design has legitimately changed, run `/architecture-decision` to formally *revise* the existing ADR — do not create a competing one.
 - If **no ADR exists** for the pattern that was violated: run `/architecture-decision` to document the correct approach before fixing the code.

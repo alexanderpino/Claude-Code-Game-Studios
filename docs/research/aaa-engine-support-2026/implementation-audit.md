@@ -19,7 +19,7 @@ Claude behavior or production engine support.
   through PR #1 (`22fbb13`). Phase 13 (agent models and effort) is
   implemented on `feature/agent-model-effort`, branched from `22fbb13`,
   uncommitted; its exit checks (6.1) passed after AM38(e), and its critic (AAA-ENGINE-2026-P13) blocked round 1 on F1-F6, which the fixes answer, and ended round 2 with Push: clear (F9, a follow-up, recorded and fixed).
-- The fix plan (revision 4, amendments AM1–AM38, Phases 8, 9, 10, 11, 12 and 13 in its
+- The fix plan (revision 4, amendments AM1–AM40, Phases 8, 9, 10, 11, 12 and 13 in its
   sections 10, 11, 12, 13, 14 and 15) is implemented through Phase 13. Phase 10
   included the main session's re-pin of the shared-file manifest (AM27); its
   critic, AAA-ENGINE-2026-P10, ended at round 2 with every finding resolved (F1, the

@@ -281,6 +281,21 @@
    "class": "departure",
    "ref": "AM38",
    "text": "AM38, agent models and effort on every engine: each base agent's frontmatter `model:` line is set and an `effort:` line is added directly after it, both written by .claude/scripts/agent-models.sh sync from .claude/agent-models.yaml. Godot, Unity, Unreal and Web projects run each agent on that model and effort instead of the base release's pin or the session's model; UPGRADING 'Other engines' and CHANGELOG disclose it with the way back (a `session` override per role, or CLAUDE_CODE_SUBAGENT_MODEL_FORCE with CLAUDE_CODE_EFFORT_LEVEL). The one sentence in /gate-check's references/4-assessment.md that said `art-director` runs on the session's model now names the models and efforts the table gives the phase-gate panel. /skill-test's example agent static check for `qa-lead` shows the model and effort the table gives it."
+  },
+  "adr-location-am40": {
+   "class": "departure",
+   "ref": "AM40",
+   "text": "AM40, the AM39 critic's findings on every engine: each hunk names an ADR through `bash .claude/scripts/adr-files.sh` (its `match`, `file`, `dir` or `new` row) or `adr-status.sh` (an ADR's path) in place of a path or a count built on `docs/architecture/`, uses the contract placeholders `[adr_dir]`, `[ADR path]` and `[new ADR path]` in place of AM39's `<docs.adr_dir>/adr-NNNN-[slug].md`, or adds to a skill's allowed-tools the grant for the helper its files run (`Bash(bash .claude/scripts/adr-files.sh *)`, code-review's `Bash(bash .claude/scripts/adr-status.sh *)`), keeping every entry the base release and earlier reasons pin, in their order (SHARED_SKILL_TOOL_ADDITIONS). With neither `docs.adr_dir` nor `docs.adr_glob` set, the ADRs these lines reach are the base release's (`docs/architecture/adr-*.md`, matched without regard to case)."
+  },
+  "adr-location-am39": {
+   "class": "departure",
+   "ref": "AM39",
+   "text": "AM39, the ADR location setting on every engine: each hunk replaces a hardcoded `docs/architecture/adr-*.md` or `docs/architecture/adr-NNNN-[slug].md` with the configured location: `<docs.adr_dir>`, the `[adrs]` placeholder each file defines from `bash .claude/scripts/adr-files.sh where`, or adr-files.sh's `file` and `new` rows. With neither `docs.adr_dir` nor `docs.adr_glob` set, the location these lines name is the one the base release named (`docs/architecture/adr-*.md`, now matched without regard to case). creative-director's example names the ADR by id instead of by path. /architecture-review's phase files stay as Fix 8.6 pins them; its SKILL.md gains one paragraph that has every phase use the configured location in place of `docs/architecture/adr-*.md`."
+  },
+  "custom-setup-reference-am39": {
+   "class": "departure",
+   "ref": "fix 8.4, AM28, section 12, AM32(c), AM35(a), AM39",
+   "text": "references/custom.md (added in a base skill directory, Custom only): cookers sit under engine/tools/ with runtime loading in engine/assets/ (R138); C3 names the C++ test framework choice and `/project-settings testing.framework=<name>` (R111); C5 step 3 states the story route's prerequisites (AM28 D5) and that module specs reach epics and stories only at `workflow: standard` or `full` (AM28 D4). AM32(c): C2's Platforms answers map to `platform.targets` (`Windows`, `Linux` and `macOS` are `PC`, `Console` is `Console`, `XR headset` is `XR`) for Section 5.5.4. AM35(a): C2's Platforms question keeps four options, the question tool's limit (C168), and takes `XR headset` as a typed answer, as guided Question 2 takes `VR headset (XR)`. Custom only. AM39: the first-ADRs recommendation says the ADRs are written to the path on adr-files.sh's `new` row, default `docs/architecture/adr-NNNN-<slug>.md`."
   }
  },
  "files": {
@@ -627,6 +642,20 @@
       "effort: high"
      ],
      "reason": "agent-model-effort-am38"
+    },
+    {
+     "id": "c41e70926fabbbb6",
+     "base": [
+      131,
+      132
+     ],
+     "old": [
+      "1. Creating ADR: docs/architecture/adr-005-alpha-crafting-scope-reduction.md"
+     ],
+     "new": [
+      "1. Creating ADR-0005 (alpha crafting scope reduction) with /architecture-decision"
+     ],
+     "reason": "adr-location-am39"
     }
    ]
   },
@@ -2589,8 +2618,145 @@
     }
    ]
   },
+  ".claude/skills/adopt/SKILL.md": {
+   "hunks": [
+    {
+     "id": "ac7a33fbf1e9aee9",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Bash(bash \"*/.claude/skills/adopt/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/gdd-structure-check.sh *), Bash(bash .claude/scripts/migrate-v1-config.sh --dry-run*)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, AskUserQuestion, Bash(bash \"*/.claude/skills/adopt/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/gdd-structure-check.sh *), Bash(bash .claude/scripts/migrate-v1-config.sh --dry-run*), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
+  ".claude/skills/adopt/references/1-detect.md": {
+   "hunks": [
+    {
+     "id": "62fc71aaeb5bd9a8",
+     "base": [
+      17,
+      18
+     ],
+     "old": [
+      "- Count ADR files: `docs/architecture/adr-*.md`"
+     ],
+     "new": [
+      "- Count ADR files: the `file` rows of `bash .claude/scripts/adr-files.sh list`",
+      "  (`docs.adr_dir` and `docs.adr_glob`, default `docs/architecture/adr-*.md`)"
+     ],
+     "reason": "adr-location-am39"
+    },
+    {
+     "id": "8314766e2f67157f",
+     "base": [
+      55,
+      56
+     ],
+     "old": [
+      "   `docs/architecture/adr-NNNN-[name].md`; story →"
+     ],
+     "new": [
+      "   the `new` row of `adr-files.sh where` (default `docs/architecture/adr-NNNN-[name].md`); story →"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    }
+   ]
+  },
+  ".claude/skills/adopt/references/4-migration-plan.md": {
+   "hunks": [
+    {
+     "id": "4807b81b555dccef",
+     "base": [
+      26,
+      27
+     ],
+     "old": [
+      "`/architecture-decision retrofit docs/architecture/adr-[NNNN]-[slug].md`"
+     ],
+     "new": [
+      "`/architecture-decision retrofit [ADR path]`, the path `adr-files.sh list` gives"
+     ],
+     "reason": "adr-location-am39"
+    }
+   ]
+  },
   ".claude/skills/architecture-decision/CONTRACT.md": {
    "hunks": [
+    {
+     "id": "b0cdfb7f8e63f761",
+     "base": [
+      3,
+      4
+     ],
+     "old": [
+      "Authors a new Architecture Decision Record (ADR) by guiding a collaborative design session, cross-referencing the engine reference library and existing architectural stances, and writing a fully-structured ADR file to `docs/architecture/` as `Proposed`. Its `accept` mode is the only route to `Accepted`, and acceptance is what unblocks the stories and epics that depend on the decision."
+     ],
+     "new": [
+      "Authors a new Architecture Decision Record (ADR) by guiding a collaborative design session, cross-referencing the engine reference library and existing architectural stances, and writing a fully-structured ADR file to the ADR folder (`docs.adr_dir`) as `Proposed`. Its `accept` mode is the only route to `Accepted`, and acceptance is what unblocks the stories and epics that depend on the decision."
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "3ff4418646c98847",
+     "base": [
+      21,
+      22
+     ],
+     "old": [
+      "| `docs/architecture/` (existing ADRs) | Scanned to determine the next sequential ADR number | Yes |"
+     ],
+     "new": [
+      "| `[adr_dir]` (the ADR folder, the `dir` row of `adr-files.sh where`; existing ADRs, `adr-files.sh list`) | Scanned to determine the next sequential ADR number | Yes |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "881f300613ab44c6",
+     "base": [
+      37,
+      38
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` | `## Status`, `## Date`, `## Engine Compatibility` (table with engine, domain, knowledge risk, post-cutoff APIs, verification required), `## ADR Dependencies` (table with depends-on, enables, blocks, ordering note), `## Context` (problem statement, constraints, requirements), `## Decision` (+ architecture diagram + key interfaces), `## Alternatives Considered`, `## Consequences` (positive, negative), `## Risks`, `## GDD Requirements Addressed` (table), `## Performance Implications`, `## Migration Plan`, `## Validation Criteria`, `## Related` | created after user approves (\"May I write this ADR to docs/architecture/adr-NNNN-[slug].md?\") |"
+     ],
+     "new": [
+      "| `[new ADR path]` (`adr-files.sh`'s `new` row, default `docs/architecture/adr-NNNN-[slug].md`) | `## Status`, `## Date`, `## Engine Compatibility` (table with engine, domain, knowledge risk, post-cutoff APIs, verification required), `## ADR Dependencies` (table with depends-on, enables, blocks, ordering note), `## Context` (problem statement, constraints, requirements), `## Decision` (+ architecture diagram + key interfaces), `## Alternatives Considered`, `## Consequences` (positive, negative), `## Risks`, `## GDD Requirements Addressed` (table), `## Performance Implications`, `## Migration Plan`, `## Validation Criteria`, `## Related` | created after user approves (\"May I write this ADR to [the path on adr-files.sh's `new` row]?\") |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "c03df5b1ecb4b07c",
+     "base": [
+      41,
+      42
+     ],
+     "old": [
+      "- The ADR number is the next sequential integer after the highest existing `adr-NNNN-*` filename in `docs/architecture/`"
+     ],
+     "new": [
+      "- The ADR number is the next sequential integer after the highest existing `adr-NNNN-*` filename (any case) in `[adr_dir]`"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
     {
      "id": "3ab127ce6d0534e4",
      "base": [
@@ -2604,6 +2770,73 @@
      "reason": "engine-mode-phase10",
      "supersedes": [
       "engine-mode"
+     ]
+    },
+    {
+     "id": "45c2f3ad0b304a58",
+     "base": [
+      49,
+      51
+     ],
+     "old": [
+      "- READS but does NOT modify: all existing ADR files in `docs/architecture/` (including in retrofit mode — existing sections are never touched), all GDD files in `design/gdd/`, `docs/engine-reference/**`, `project.yaml`, `.claude/docs/technical-preferences.md` (legacy fallback)",
+      "- MODIFIES: `docs/architecture/adr-NNNN-[slug].md` (new file created; or missing sections appended in retrofit mode), `docs/registry/architecture.yaml` (append only; existing entries get `status: superseded_by` annotation, never deleted or rewritten)"
+     ],
+     "new": [
+      "- READS but does NOT modify: all existing ADR files in `[adr_dir]` (including in retrofit mode — existing sections are never touched), all GDD files in `design/gdd/`, `docs/engine-reference/**`, `project.yaml`, `.claude/docs/technical-preferences.md` (legacy fallback)",
+      "- MODIFIES: `[new ADR path]` (new file created), or in retrofit mode the existing ADR's file (missing sections appended), `docs/registry/architecture.yaml` (append only; existing entries get `status: superseded_by` annotation, never deleted or rewritten)"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "2978d847b8a74aa2",
+     "base": [
+      57,
+      58
+     ],
+     "old": [
+      "- Never assigns an ADR number that is already in use — always scan `docs/architecture/` first and use the next sequential number"
+     ],
+     "new": [
+      "- Never assigns an ADR number that is already in use — always scan `[adr_dir]` first and use the next sequential number"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "335324733692f2f5",
+     "base": [
+      60,
+      61
+     ],
+     "old": [
+      "- Never writes the ADR file without asking: \"May I write this ADR to docs/architecture/adr-NNNN-[slug].md?\""
+     ],
+     "new": [
+      "- Never writes the ADR file without asking: \"May I write this ADR to [the path on adr-files.sh's `new` row]?\""
+     ],
+     "reason": "adr-location-am39"
+    },
+    {
+     "id": "54de72496d78556d",
+     "base": [
+      88,
+      89
+     ],
+     "old": [
+      "- If the ADR number scan misses a file (e.g., a file in a subdirectory of `docs/architecture/` or with a non-standard naming pattern), a duplicate number can be assigned — all ADR files must follow the `adr-NNNN-[slug].md` naming convention at the top level of `docs/architecture/`"
+     ],
+     "new": [
+      "- If the ADR number scan misses a file (e.g., a file in a subdirectory of `[adr_dir]` or with a name `docs.adr_glob` does not match), a duplicate number can be assigned — all ADR files must follow the `adr-NNNN-[slug].md` naming convention (any case) at the top level of `[adr_dir]`"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
      ]
     }
    ]
@@ -2623,6 +2856,20 @@
       "argument-hint: \"[title | retrofit <path> | accept <ADR-id>] [--engine-internal] [--review full|lean|solo]\""
      ],
      "reason": "engine-mode"
+    },
+    {
+     "id": "cf7f0f8f2027ecb6",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(wc -c *), Bash(bash \"*/.claude/skills/architecture-decision/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(wc -c *), Bash(bash \"*/.claude/skills/architecture-decision/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
     },
     {
      "id": "b0b1fb6c6c7da6e6",
@@ -2664,6 +2911,60 @@
      "supersedes": [
       "engine-mode"
      ]
+    },
+    {
+     "id": "8fb264151218d293",
+     "base": [
+      72,
+      73
+     ],
+     "old": [
+      "Scan `docs/architecture/` for existing ADRs to find the next number."
+     ],
+     "new": [
+      "Scan the ADRs for the next number: `bash .claude/scripts/adr-files.sh list` lists",
+      "them (`docs.adr_dir` and `docs.adr_glob`, default `docs/architecture/adr-*.md`),",
+      "and its `new` row is the new ADR's path. Where a reference file names an existing",
+      "ADR `docs/architecture/[adr-file].md`, use its path on a `file` row instead."
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "e34b135335abe51d",
+     "base": [
+      93,
+      94
+     ],
+     "old": [
+      "1. Read the `## Required ADRs` section of `docs/architecture/architecture.md` (by section) and list `docs/architecture/adr-*.md`: a required ADR with no file is still unwritten. Without `architecture.md`, look for ADRs flagged in technical-preferences.md or systems-index.md as prerequisites"
+     ],
+     "new": [
+      "1. Read the `## Required ADRs` section of `docs/architecture/architecture.md` (by section) and list the ADRs (`bash .claude/scripts/adr-files.sh list`): a required ADR with no file is still unwritten. Without `architecture.md`, look for ADRs flagged in technical-preferences.md or systems-index.md as prerequisites"
+     ],
+     "reason": "adr-location-am39"
+    }
+   ]
+  },
+  ".claude/skills/architecture-decision/references/0-accept.md": {
+   "hunks": [
+    {
+     "id": "3b883f199da01e9e",
+     "base": [
+      16,
+      18
+     ],
+     "old": [
+      "1. **Resolve the id to a file, then read it.** Glob",
+      "   `docs/architecture/adr-NNNN-*.md` for the given number. If **no** file matches,"
+     ],
+     "new": [
+      "1. **Resolve the id to a file, then read it.** Take",
+      "   the `file` row of `bash .claude/scripts/adr-files.sh list` for the given number. If **no** file matches,"
+     ],
+     "reason": "adr-location-am39"
     }
    ]
   },
@@ -2921,6 +3222,58 @@
       "Decision — and counts in the one-line result below."
      ],
      "reason": "custom-addition"
+    },
+    {
+     "id": "cd3f527382760949",
+     "base": [
+      215,
+      216
+     ],
+     "old": [
+      "  - [A] Write ADR to `docs/architecture/adr-[NNNN]-[slug].md`"
+     ],
+     "new": [
+      "  - [A] Write ADR to the path on the `new` row of `bash .claude/scripts/adr-files.sh where` (default `docs/architecture/adr-[NNNN]-[slug].md`)"
+     ],
+     "reason": "adr-location-am39"
+    }
+   ]
+  },
+  ".claude/skills/architecture-review/SKILL.md": {
+   "hunks": [
+    {
+     "id": "fc11bb68a043255d",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(bash \"*/.claude/skills/architecture-review/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/review-receipts.sh check *), Bash(bash .claude/scripts/review-receipts.sh hash *), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/registry.sh validate*)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(bash \"*/.claude/skills/architecture-review/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/review-receipts.sh check *), Bash(bash .claude/scripts/review-receipts.sh hash *), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/registry.sh validate*), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "0e68fbf2c4163772",
+     "base": [
+      43,
+      43
+     ],
+     "old": [],
+     "new": [
+      "",
+      "**Where the ADRs are.** The phase files name the ADRs `docs/architecture/adr-*.md`,",
+      "the default. Run `bash .claude/scripts/adr-files.sh where` once and, in every glob",
+      "and command of every phase, use its `match` row (`docs.adr_dir` and",
+      "`docs.adr_glob`, spelled to match in any case) in place of `docs/architecture/adr-*.md`. An",
+      "`invalid` row means the ADR checks are NOT ASSESSED: say so, with its reason."
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
     }
    ]
   },
@@ -3177,6 +3530,20 @@
   ".claude/skills/code-review/SKILL.md": {
    "hunks": [
     {
+     "id": "5e3cdacd6ad02110",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Bash(git log *), Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/code-review/../../hooks/yaml-helper.sh\" resolve_config *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Bash(git log *), Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/code-review/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/adr-status.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
      "id": "b24f82ffd4a993ad",
      "base": [
       58,
@@ -3189,6 +3556,20 @@
       "- The **Primary** specialist — `<engine>-specialist` derived from `engine.name` (Godot→`godot-specialist`, Unity→`unity-specialist`, Unreal→`unreal-specialist`, Web→`lead-programmer`); used for architecture and broad engine concerns. **Custom** (a project building its own engine) → by the files under review, resolved through `.claude/docs/custom-engine-layout.md` (including `crates/<module>/`): the Lead of the file's most specific row (the layout's precedence rule), or its Owner where the Lead is `chief-engine-architect` or `none`; `chief-engine-architect` when the files resolve to different helpers; a file with no row is reported as `<path>: NOT ASSESSED — no layout row`, never routed by guess: no helper reviews it, so the review itself writes that line under Engine Specialist Findings, which then read NOT ASSESSED (whether or not a helper runs for the other files). Still one helper (Phase 7)."
      ],
      "reason": "custom-clause-in-base-unit"
+    },
+    {
+     "id": "b169f6fe7157408a",
+     "base": [
+      88,
+      89
+     ],
+     "old": [
+      "For each referenced ADR, load **only the sections this check needs — never an unbounded full read.** A substantial ADR exceeds the 25k-token read cap, and a capped read's only recovery is paging the remainder — the most expensive way to read a file. Use the same pattern as `/dev-story` and `/create-stories`:"
+     ],
+     "new": [
+      "For each referenced ADR (`bash .claude/scripts/adr-status.sh ADR-NNNN` prints its file), load **only the sections this check needs — never an unbounded full read.** A substantial ADR exceeds the 25k-token read cap, and a capped read's only recovery is paging the remainder — the most expensive way to read a file. Use the same pattern as `/dev-story` and `/create-stories`:"
+     ],
+     "reason": "adr-location-am40"
     },
     {
      "id": "6ccfce397bf114bf",
@@ -3232,6 +3613,20 @@
       "  row, `<path>: NOT ASSESSED — no layout row`);"
      ],
      "reason": "code-review-not-assessed"
+    },
+    {
+     "id": "7409a21e9be5b75b",
+     "base": [
+      281,
+      282
+     ],
+     "old": [
+      "- If the violation contradicts an **existing ADR**: fix the implementation to comply with `docs/architecture/[adr-file].md`. If the design has legitimately changed, run `/architecture-decision` to formally *revise* the existing ADR — do not create a competing one."
+     ],
+     "new": [
+      "- If the violation contradicts an **existing ADR**: fix the implementation to comply with that ADR's file. If the design has legitimately changed, run `/architecture-decision` to formally *revise* the existing ADR — do not create a competing one."
+     ],
+     "reason": "adr-location-am40"
     }
    ]
   },
@@ -3299,6 +3694,24 @@
     }
    ]
   },
+  ".claude/skills/create-architecture/SKILL.md": {
+   "hunks": [
+    {
+     "id": "8e00ab94e4d7fd3d",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Agent, Bash(bash \"*/.claude/skills/create-architecture/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Agent, Bash(bash \"*/.claude/skills/create-architecture/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
   ".claude/skills/create-architecture/references/0-load-context.md": {
    "hunks": [
     {
@@ -3319,14 +3732,13 @@
      "reason": "absent-reference-file-announced"
     },
     {
-     "id": "063e712a0df58a01",
+     "id": "0a0dcd6c6e631feb",
      "base": [
-      107,
-      107
+      108,
+      108
      ],
      "old": [],
      "new": [
-      "",
       "**Custom** (`engine.name: Custom`): the engine's own modules are layered too,",
       "from their module specs, as well as the systems of `systems-index.md`. Glob",
       "`docs/architecture/modules/*.md` (one spec per engine module, from",
@@ -3335,9 +3747,45 @@
       "\"10. Test Plan and Acceptance Criteria\". Phase 1 places each module in the layer",
       "map beside the systems, and the baseline numbers its requirements",
       "`TR-[module]-[NNN]` by the registry rule below. No module spec yet: say so in the",
-      "output; no layer is invented for a module that has none."
+      "output; no layer is invented for a module that has none.",
+      ""
      ],
      "reason": "custom-addition"
+    },
+    {
+     "id": "429bb81b5eadddf2",
+     "base": [
+      149,
+      150
+     ],
+     "old": [
+      "headers — do not full-read every ADR to produce a list of numbers and domains:"
+     ],
+     "new": [
+      "headers — do not full-read every ADR to produce a list of numbers and domains",
+      "(`[adrs]`: the `match` row of `bash .claude/scripts/adr-files.sh where`, the",
+      "ADRs in any case, default `docs/architecture/adr-*.md`):"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "e1e5646f9736c4c9",
+     "base": [
+      151,
+      153
+     ],
+     "old": [
+      "Grep pattern=\"^## (Status|Summary)\" glob=\"docs/architecture/adr-*.md\" output_mode=\"content\" -A 4",
+      "Grep pattern=\"\\*\\*Domain\\*\\*\" glob=\"docs/architecture/adr-*.md\" output_mode=\"content\""
+     ],
+     "new": [
+      "Grep pattern=\"^## (Status|Summary)\" glob=\"[adrs]\" output_mode=\"content\" -A 4",
+      "Grep pattern=\"\\*\\*Domain\\*\\*\" glob=\"[adrs]\" output_mode=\"content\""
+     ],
+     "reason": "adr-location-am39"
     }
    ]
   },
@@ -3365,6 +3813,22 @@
   ".claude/skills/create-control-manifest/SKILL.md": {
    "hunks": [
     {
+     "id": "f6b805f4b1d4b8ab",
+     "base": [
+      36,
+      38
+     ],
+     "old": [
+      "`bash .claude/scripts/adr-status.sh` reads every `docs/architecture/adr-*.md` in one",
+      "pass: the counts first (`adrs`, then `accepted`, `proposed`, `deprecated`,"
+     ],
+     "new": [
+      "`bash .claude/scripts/adr-status.sh` reads every ADR (`docs.adr_dir` and",
+      "`docs.adr_glob`, default `docs/architecture/adr-*.md`) in one pass: the counts first (`adrs`, then `accepted`, `proposed`, `deprecated`,"
+     ],
+     "reason": "adr-location-am39"
+    },
+    {
      "id": "269efb84227ad2f7",
      "base": [
       64,
@@ -3378,6 +3842,71 @@
       "  Custom project's `/setup-engine custom` writes only `VERSION.md` there.)"
      ],
      "reason": "absent-reference-file-announced"
+    },
+    {
+     "id": "a9a57b7706abb7cc",
+     "base": [
+      78,
+      79
+     ],
+     "old": [
+      "bash .claude/scripts/md-section.sh extract docs/architecture/[adr-file].md \"Decision\""
+     ],
+     "new": [
+      "bash .claude/scripts/md-section.sh extract \"[ADR path]\" \"Decision\""
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "7f42ab3f60313b9e",
+     "base": [
+      80,
+      80
+     ],
+     "old": [],
+     "new": [
+      "",
+      "(`[ADR path]`: the path on the ADR's `adr-status.sh` row)"
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
+  ".claude/skills/create-epics/CONTRACT.md": {
+   "hunks": [
+    {
+     "id": "1785d2813a5dff1c",
+     "base": [
+      15,
+      16
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` (all governing ADRs) | `Status:`, `GDD Requirements Addressed`, `Decision`, `Engine Compatibility` | Yes |"
+     ],
+     "new": [
+      "| `[ADR path]` (all governing ADRs; the paths on their `adr-status.sh` rows) | `Status:`, `GDD Requirements Addressed`, `Decision`, `Engine Compatibility` | Yes |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "de623986d5898c4b",
+     "base": [
+      59,
+      60
+     ],
+     "old": [
+      "- READS but does NOT modify: `design/gdd/systems-index.md`, all GDD files, `docs/architecture/architecture.md`, all ADR files in `docs/architecture/adr-NNNN-[slug].md` pattern, `docs/architecture/control-manifest.md`, `docs/architecture/tr-registry.yaml`, `docs/engine-reference/[engine]/VERSION.md`"
+     ],
+     "new": [
+      "- READS but does NOT modify: `design/gdd/systems-index.md`, all GDD files, `docs/architecture/architecture.md`, all ADR files (`adr-status.sh`), `docs/architecture/control-manifest.md`, `docs/architecture/tr-registry.yaml`, `docs/engine-reference/[engine]/VERSION.md`"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
     }
    ]
   },
@@ -3431,6 +3960,44 @@
       "   module spec is reported to the user, never guessed at."
      ],
      "reason": "custom-addition"
+    }
+   ]
+  },
+  ".claude/skills/create-stories/CONTRACT.md": {
+   "hunks": [
+    {
+     "id": "bb96b365b0468104",
+     "base": [
+      14,
+      15
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` (all governing ADRs) | `## Status`, `## Summary`, `## Decision` (incl. `### Implementation Guidelines`), `## Engine Compatibility`, `## Last Verified` / `## Date`, the `**Depends On**` row (read through `adr-status.sh`) | Yes |"
+     ],
+     "new": [
+      "| `[ADR path]` (all governing ADRs; the paths on their `adr-status.sh` rows) | `## Status`, `## Summary`, `## Decision` (incl. `### Implementation Guidelines`), `## Engine Compatibility`, `## Last Verified` / `## Date`, the `**Depends On**` row (read through `adr-status.sh`) | Yes |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "faf0858cdca67e16",
+     "base": [
+      81,
+      82
+     ],
+     "old": [
+      "- The ADR referenced by name in `ADR Governing Implementation:` exists as a file in `docs/architecture/` (pattern: `adr-NNNN-[slug].md`)"
+     ],
+     "new": [
+      "- The ADR referenced by name in `ADR Governing Implementation:` exists as a file `adr-status.sh` lists (pattern: `adr-NNNN-[slug].md`, any case)"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
     }
    ]
   },
@@ -3559,6 +4126,117 @@
     }
    ]
   },
+  ".claude/skills/design-system/SKILL.md": {
+   "hunks": [
+    {
+     "id": "03668718591e4e9b",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Bash(bash \"*/.claude/skills/design-system/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Bash(bash \"*/.claude/skills/design-system/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/registry.sh *), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
+  ".claude/skills/design-system/references/2-gather-context.md": {
+   "hunks": [
+    {
+     "id": "63fb80cea4b6fab2",
+     "base": [
+      194,
+      195
+     ],
+     "old": [
+      "  filter on — grep the Domain field first, then read only the matches:"
+     ],
+     "new": [
+      "  filter on — grep the Domain field first, then read only the matches (`[adrs]`:",
+      "  the `match` row of `bash .claude/scripts/adr-files.sh where`, the ADRs in any",
+      "  case, default `docs/architecture/adr-*.md`):"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "1777bd3f654b0afa",
+     "base": [
+      196,
+      197
+     ],
+     "old": [
+      "  Grep pattern=\"\\*\\*Domain\\*\\*\" glob=\"docs/architecture/adr-*.md\" output_mode=\"content\""
+     ],
+     "new": [
+      "  Grep pattern=\"\\*\\*Domain\\*\\*\" glob=\"[adrs]\" output_mode=\"content\""
+     ],
+     "reason": "adr-location-am39"
+    }
+   ]
+  },
+  ".claude/skills/design-system/references/4-section-design.md": {
+   "hunks": [
+    {
+     "id": "ead4b6ce8461b83e",
+     "base": [
+      119,
+      120
+     ],
+     "old": [
+      "- **ADR ref tab**: Glob `docs/architecture/adr-*.md` and grep for the system name in the GDD Requirements section of any ADR. If a matching ADR is found → `[A] Yes — cite the ADR` recommended. If none found → `[B] No` recommended."
+     ],
+     "new": [
+      "- **ADR ref tab**: List the ADRs (`bash .claude/scripts/adr-files.sh list`) and grep for the system name in the GDD Requirements section of any ADR. If a matching ADR is found → `[A] Yes — cite the ADR` recommended. If none found → `[B] No` recommended."
+     ],
+     "reason": "adr-location-am39"
+    }
+   ]
+  },
+  ".claude/skills/dev-story/CONTRACT.md": {
+   "hunks": [
+    {
+     "id": "ecd8189ef8c223f2",
+     "base": [
+      12,
+      13
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` (referenced ADR) | `## Status`, `## Last Verified` (else `## Date`) — from `adr-status.sh`; `## Decision` (with its `### Implementation Guidelines`), `## Engine Compatibility`, `## ADR Dependencies` — read only on a version mismatch answered \"Re-read the changed ADR\" | Yes — the ADR is never edited; a mismatch updates the story's stamp, not the ADR |"
+     ],
+     "new": [
+      "| `[ADR path]` (referenced ADR; the path on its `adr-status.sh` row) | `## Status`, `## Last Verified` (else `## Date`) — from `adr-status.sh`; `## Decision` (with its `### Implementation Guidelines`), `## Engine Compatibility`, `## ADR Dependencies` — read only on a version mismatch answered \"Re-read the changed ADR\" | Yes — the ADR is never edited; a mismatch updates the story's stamp, not the ADR |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "5b6523be1738abb9",
+     "base": [
+      56,
+      57
+     ],
+     "old": [
+      "- READS but does NOT modify: `project.yaml`, `docs/architecture/tr-registry.yaml`, `docs/architecture/adr-NNNN-[slug].md`, all GDD files in `design/gdd/`, `docs/architecture/control-manifest.md`, `.claude/docs/technical-preferences.md` (legacy fallback), `docs/engine-reference/[engine]/VERSION.md`"
+     ],
+     "new": [
+      "- READS but does NOT modify: `project.yaml`, `docs/architecture/tr-registry.yaml`, `[ADR path]`, all GDD files in `design/gdd/`, `docs/architecture/control-manifest.md`, `.claude/docs/technical-preferences.md` (legacy fallback), `docs/engine-reference/[engine]/VERSION.md`"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    }
+   ]
+  },
   ".claude/skills/dev-story/SKILL.md": {
    "hunks": [
     {
@@ -3662,6 +4340,20 @@
   ".claude/skills/gate-check/CONTRACT.md": {
    "hunks": [
     {
+     "id": "6037d4a81b9a8f16",
+     "base": [
+      21,
+      22
+     ],
+     "old": [
+      "| Technical Setup → Pre-Production | `docs/architecture/` ADRs (≥3), `docs/engine-reference/[engine]/deprecated-apis.md`, `docs/architecture/architecture.md`, `docs/architecture/requirements-traceability.md`, `design/accessibility-requirements.md`, `design/ux/interaction-patterns.md` |"
+     ],
+     "new": [
+      "| Technical Setup → Pre-Production | ADRs (≥3, `adr-files.sh list`), `docs/engine-reference/[engine]/deprecated-apis.md`, `docs/architecture/architecture.md`, `docs/architecture/requirements-traceability.md`, `design/accessibility-requirements.md`, `design/ux/interaction-patterns.md` |"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
      "id": "a8f4234d5f0bac40",
      "base": [
       23,
@@ -3686,13 +4378,27 @@
       "| Custom engine only (`engine.name: Custom`; each gate file's `## Custom engine additions` block, skipped with a one-line note on any other engine) | Technical Setup → Pre-Production: `docs/architecture/modules/*.md`, engine-mode ADRs and their CEA-ADR verdicts, `performance.frame_budget_ms`, `docs/architecture/frame-budget.md`, `docs/architecture/memory-invariants.md`, `bash .claude/scripts/test-run.sh custom`'s `rule` row, the CI platform × graphics-API matrix · Pre-Production → Production: headless engine slice test, a rendered frame in `production/qa/evidence/`, `production/qa/benchmarks/benchmark-*.md`, `production/qa/memory/memory-audit-*.md` · Production → Polish: newest benchmark report vs baseline (CEA-FRAME-BUDGET), streaming and load-time measurements, determinism replay tests · Polish → Release: release-candidate `/memory-audit`, validation-layer logs, platform requirement checklists in `production/releases/`, `docs/engine/api/` and `docs/engine/migration/`, symbol upload and a symbolicated test crash |"
      ],
      "reason": "gate-custom-additions-block"
+    },
+    {
+     "id": "0e65f2739f2361b0",
+     "base": [
+      44,
+      45
+     ],
+     "old": [
+      "- READS but does NOT modify: all GDDs in `design/gdd/`, all ADRs in `docs/architecture/`, `docs/architecture/control-manifest.md`, `docs/architecture/tr-registry.yaml`, `.claude/docs/technical-preferences.md` (legacy fallback), `docs/engine-reference/[engine]/VERSION.md`, `docs/engine-reference/[engine]/deprecated-apis.md`, all story files in `production/epics/`, all sprint files in `production/sprints/`, all playtest files in `production/qa/playtests/`, source files in the code root (Grep only), test files under the engine's test root (run via Bash)"
+     ],
+     "new": [
+      "- READS but does NOT modify: all GDDs in `design/gdd/`, all ADRs (`adr-files.sh list`), `docs/architecture/control-manifest.md`, `docs/architecture/tr-registry.yaml`, `.claude/docs/technical-preferences.md` (legacy fallback), `docs/engine-reference/[engine]/VERSION.md`, `docs/engine-reference/[engine]/deprecated-apis.md`, all story files in `production/epics/`, all sprint files in `production/sprints/`, all playtest files in `production/qa/playtests/`, source files in the code root (Grep only), test files under the engine's test root (run via Bash)"
+     ],
+     "reason": "adr-location-am40"
     }
    ]
   },
   ".claude/skills/gate-check/SKILL.md": {
    "hunks": [
     {
-     "id": "1a46948b5f85712c",
+     "id": "14e5c2a797fc4e0e",
      "base": [
       5,
       6
@@ -3701,11 +4407,11 @@
       "allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/gate-check/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash .claude/scripts/gdd-structure-check.sh*), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/set-stage.sh *)"
      ],
      "new": [
-      "allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/gate-check/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash .claude/scripts/gdd-structure-check.sh*), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/set-stage.sh *), Bash(bash .claude/scripts/test-run.sh custom)"
+      "allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/gate-check/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash .claude/scripts/gdd-structure-check.sh*), Bash(bash .claude/scripts/adr-dep-graph.sh*), Bash(bash .claude/scripts/set-stage.sh *), Bash(bash .claude/scripts/test-run.sh custom), Bash(bash .claude/scripts/adr-files.sh *)"
      ],
-     "reason": "skill-tool-grants-exact",
+     "reason": "adr-location-am40",
      "supersedes": [
-      "skill-tool-additions"
+      "skill-tool-grants-exact"
      ]
     },
     {
@@ -3895,6 +4601,24 @@
     }
    ]
   },
+  ".claude/skills/gate-check/references/5-verdict.md": {
+   "hunks": [
+    {
+     "id": "f6ea98ef3ad52e0c",
+     "base": [
+      20,
+      21
+     ],
+     "old": [
+      "- [ ] docs/architecture/ — MISSING (no ADRs found)"
+     ],
+     "new": [
+      "- [ ] docs/architecture/adr-*.md (`adr-files.sh where`) — MISSING (no ADRs found)"
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
   ".claude/skills/gate-check/references/gate-polish.md": {
    "hunks": [
     {
@@ -3994,7 +4718,7 @@
      "reason": "engine-list-gains-custom"
     },
     {
-     "id": "0bf0d8b4c722f520",
+     "id": "763510a42a05d9e6",
      "base": [
       92,
       92
@@ -4020,7 +4744,7 @@
       "      \"MVP engine modules not named in `docs/architecture/architecture.md` or a",
       "      module-layout ADR\". A spec still holding only the template's `[...]`",
       "      placeholders is present-but-empty (Section 5).",
-      "- [ ] **Core engine ADRs Accepted.** ADRs in `docs/architecture/` with status",
+      "- [ ] **Core engine ADRs Accepted.** ADRs (`bash .claude/scripts/adr-files.sh list`) with status",
       "      `Accepted`, written in `/architecture-decision`'s engine mode (they carry",
       "      the `## Memory`, `## Threading`, `## Latency & Frame Budget`,",
       "      `## ABI / API Stability`, `## Determinism` and",
@@ -4109,15 +4833,29 @@
       "every `qa.level`, as the smoke check is the floor for the game.",
       ""
      ],
-     "reason": "gate-custom-block-phase10",
+     "reason": "adr-location-am40",
      "supersedes": [
-      "gate-custom-additions-block"
+      "gate-custom-block-phase10"
      ]
     }
    ]
   },
   ".claude/skills/gate-check/references/gate-production.md": {
    "hunks": [
+    {
+     "id": "797d65402a796e72",
+     "base": [
+      14,
+      15
+     ],
+     "old": [
+      "- [ ] At least 3 ADRs covering Foundation-layer decisions exist in `docs/architecture/`"
+     ],
+     "new": [
+      "- [ ] At least 3 ADRs covering Foundation-layer decisions exist (`bash .claude/scripts/adr-files.sh list`)"
+     ],
+     "reason": "adr-location-am40"
+    },
     {
      "id": "44565577b239b3aa",
      "base": [
@@ -4320,6 +5058,35 @@
   ".claude/skills/next-step/SKILL.md": {
    "hunks": [
     {
+     "id": "4009a93a20696942",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Bash(bash \"*/.claude/skills/next-step/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash \"*/.claude/skills/next-step/../../scripts/story-status.sh\"), Bash(bash .claude/scripts/story-status.sh*), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash \".claude/scripts/artifact-check.sh\" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(git log *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Bash(bash \"*/.claude/skills/next-step/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash \"*/.claude/skills/next-step/../../scripts/story-status.sh\"), Bash(bash .claude/scripts/story-status.sh*), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash \".claude/scripts/artifact-check.sh\" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(git log *), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "01c06bdac28e2448",
+     "base": [
+      90,
+      91
+     ],
+     "old": [
+      "   - `docs/architecture/adr-*.md` exists → `technical-setup`"
+     ],
+     "new": [
+      "   - an ADR exists (`bash .claude/scripts/adr-files.sh list` prints a `file` row;",
+      "     default `docs/architecture/adr-*.md`) → `technical-setup`"
+     ],
+     "reason": "adr-location-am39"
+    },
+    {
      "id": "f178552822e9e547",
      "base": [
       146,
@@ -4413,6 +5180,20 @@
   ".claude/skills/project-stage-detect/SKILL.md": {
    "hunks": [
     {
+     "id": "e694e70df8b6a58a",
+     "base": [
+      5,
+      6
+     ],
+     "old": [
+      "allowed-tools: Read, Glob, Grep, Write, Bash(bash \"*/.claude/skills/project-stage-detect/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh), Bash(bash \".claude/scripts/artifact-check.sh\"), Bash(bash ./.claude/scripts/artifact-check.sh), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash \".claude/scripts/artifact-check.sh\" *), Bash(bash ./.claude/scripts/artifact-check.sh *)"
+     ],
+     "new": [
+      "allowed-tools: Read, Glob, Grep, Write, Bash(bash \"*/.claude/skills/project-stage-detect/../../hooks/yaml-helper.sh\" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh), Bash(bash \".claude/scripts/artifact-check.sh\"), Bash(bash ./.claude/scripts/artifact-check.sh), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash \".claude/scripts/artifact-check.sh\" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(bash .claude/scripts/adr-files.sh *)"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
      "id": "2fa0d8ab033df60d",
      "base": [
       62,
@@ -4463,6 +5244,67 @@
       "  (an engine with no game yet, or game code with no engine)"
      ],
      "reason": "custom-addition"
+    },
+    {
+     "id": "ac4b4e9e28cd7c32",
+     "base": [
+      104,
+      105
+     ],
+     "old": [
+      "- Count ADRs (Architecture Decision Records)"
+     ],
+     "new": [
+      "- Count ADRs (Architecture Decision Records): the `file` rows of",
+      "  `bash .claude/scripts/adr-files.sh list`, whose `dir` row is `<adr dir>`"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "3e0b852c00a0c353",
+     "base": [
+      163,
+      164
+     ],
+     "old": [
+      "- (`standard`/`full` only) \"I see [N] systems under `<code root>/` but no ADRs in `docs/architecture/`. Were those decisions recorded somewhere else, or should we write the critical ones with `/architecture-decision`?\""
+     ],
+     "new": [
+      "- (`standard`/`full` only) \"I see [N] systems under `<code root>/` but no ADRs in `<adr dir>/`. Were those decisions recorded somewhere else, or should we write the critical ones with `/architecture-decision`?\""
+     ],
+     "reason": "adr-location-am40"
+    }
+   ]
+  },
+  ".claude/skills/propagate-design-change/SKILL.md": {
+   "hunks": [
+    {
+     "id": "8b7abc0adef650d4",
+     "base": [
+      101,
+      102
+     ],
+     "old": [
+      "Establish the denominator first: their count is **N**. N is 0: \"No ADRs found in `docs/architecture/` — nothing to"
+     ],
+     "new": [
+      "Establish the denominator first: their count is **N**. N is 0: \"No ADRs found in [the location on the `adrs` row] — nothing to"
+     ],
+     "reason": "adr-location-am40"
+    },
+    {
+     "id": "b8798270e83bedbd",
+     "base": [
+      221,
+      222
+     ],
+     "old": [
+      "bash .claude/scripts/md-section.sh replace docs/architecture/[adr-file].md \"Status\" <<'EOF'"
+     ],
+     "new": [
+      "bash .claude/scripts/md-section.sh replace \"[ADR path]\" \"Status\" <<'EOF'"
+     ],
+     "reason": "adr-location-am40"
     }
    ]
   },
@@ -4721,7 +5563,7 @@
      "reason": "setup-custom-route"
     },
     {
-     "id": "8d1835c629b86604",
+     "id": "484041a0ab444035",
      "base": [
       5,
       6
@@ -4730,11 +5572,11 @@
       "allowed-tools: Read, Glob, Grep, Write, Edit, WebSearch, WebFetch, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/setup-engine/../../hooks/yaml-helper.sh\" resolve_config *), Bash(godot --version), Bash(godot --headless --path . --import), Bash(command -v godot), Bash(uname -s), Bash(bash .claude/scripts/project-coherence.sh*), Bash(node --version), Bash(npm ci*), Bash(npm run build*), Bash(bash .claude/scripts/web-scaffold.sh*), Bash(bash .claude/scripts/web-detect.sh*), Bash(pnpm install --frozen-lockfile*), Bash(yarn install --frozen-lockfile*), Bash(yarn install --immutable*), Bash(bun install --frozen-lockfile*), Bash(pnpm run build*), Bash(yarn run build*), Bash(bun run build*), Bash(bash .claude/scripts/test-run.sh web*), Bash(bash .claude/scripts/page-shot.sh *)"
      ],
      "new": [
-      "allowed-tools: Read, Glob, Grep, Write, Edit, WebSearch, WebFetch, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/setup-engine/../../hooks/yaml-helper.sh\" resolve_config *), Bash(godot --version), Bash(godot --headless --path . --import), Bash(command -v godot), Bash(uname -s), Bash(bash .claude/scripts/project-coherence.sh*), Bash(node --version), Bash(npm ci*), Bash(npm run build*), Bash(bash .claude/scripts/web-scaffold.sh*), Bash(bash .claude/scripts/web-detect.sh*), Bash(pnpm install --frozen-lockfile*), Bash(yarn install --frozen-lockfile*), Bash(yarn install --immutable*), Bash(bun install --frozen-lockfile*), Bash(pnpm run build*), Bash(yarn run build*), Bash(bun run build*), Bash(bash .claude/scripts/test-run.sh web*), Bash(bash .claude/scripts/page-shot.sh *), Bash(cmake --version), Bash(ctest --version), Bash(cargo --version), Bash(rustc --version), Bash(clang++ --version), Bash(g++ --version), Bash(bash .claude/scripts/test-run.sh custom --no-build), Bash(bash .claude/scripts/test-scaffold.sh custom*)"
+      "allowed-tools: Read, Glob, Grep, Write, Edit, WebSearch, WebFetch, Agent, AskUserQuestion, Bash(bash \"*/.claude/skills/setup-engine/../../hooks/yaml-helper.sh\" resolve_config *), Bash(godot --version), Bash(godot --headless --path . --import), Bash(command -v godot), Bash(uname -s), Bash(bash .claude/scripts/project-coherence.sh*), Bash(node --version), Bash(npm ci*), Bash(npm run build*), Bash(bash .claude/scripts/web-scaffold.sh*), Bash(bash .claude/scripts/web-detect.sh*), Bash(pnpm install --frozen-lockfile*), Bash(yarn install --frozen-lockfile*), Bash(yarn install --immutable*), Bash(bun install --frozen-lockfile*), Bash(pnpm run build*), Bash(yarn run build*), Bash(bun run build*), Bash(bash .claude/scripts/test-run.sh web*), Bash(bash .claude/scripts/page-shot.sh *), Bash(cmake --version), Bash(ctest --version), Bash(cargo --version), Bash(rustc --version), Bash(clang++ --version), Bash(g++ --version), Bash(bash .claude/scripts/test-run.sh custom --no-build), Bash(bash .claude/scripts/test-scaffold.sh custom*), Bash(bash .claude/scripts/adr-files.sh *)"
      ],
-     "reason": "skill-tool-grants-exact",
+     "reason": "adr-location-am40",
      "supersedes": [
-      "skill-tool-additions"
+      "skill-tool-grants-exact"
      ]
     },
     {
@@ -5588,6 +6430,44 @@
     }
    ]
   },
+  ".claude/skills/story-done/CONTRACT.md": {
+   "hunks": [
+    {
+     "id": "79ed0713126f04e7",
+     "base": [
+      13,
+      14
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` (referenced ADR) | `## Decision`, `## Consequences` | Yes |"
+     ],
+     "new": [
+      "| `[ADR path]` (referenced ADR; the path on its `adr-status.sh` row) | `## Decision`, `## Consequences` | Yes |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    },
+    {
+     "id": "d94fce099040597e",
+     "base": [
+      64,
+      65
+     ],
+     "old": [
+      "- READS but does NOT modify: `docs/architecture/tr-registry.yaml`, `docs/architecture/adr-NNNN-[slug].md` (Decision + Consequences only), GDD sections, `docs/architecture/control-manifest.md`, source files under the code root — `src/`, `Assets/` or `Source/` by engine (searched only) — and test files under the engine's test root (existence checked; never run or edited)"
+     ],
+     "new": [
+      "- READS but does NOT modify: `docs/architecture/tr-registry.yaml`, `[ADR path]` (Decision + Consequences only), GDD sections, `docs/architecture/control-manifest.md`, source files under the code root — `src/`, `Assets/` or `Source/` by engine (searched only) — and test files under the engine's test root (existence checked; never run or edited)"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
+    }
+   ]
+  },
   ".claude/skills/story-done/SKILL.md": {
    "hunks": [
     {
@@ -5655,6 +6535,27 @@
       "   `NOT ASSESSED — frame-pipeline scope not stated` line is one of these."
      ],
      "reason": "story-route-and-discoverability"
+    }
+   ]
+  },
+  ".claude/skills/story-readiness/CONTRACT.md": {
+   "hunks": [
+    {
+     "id": "502412ebad110b43",
+     "base": [
+      15,
+      16
+     ],
+     "old": [
+      "| `docs/architecture/adr-NNNN-[slug].md` (all ADRs referenced in stories) | `## Status`, the `**Layer**` row (read through `adr-status.sh`) | Yes |"
+     ],
+     "new": [
+      "| `[ADR path]` (all ADRs referenced in stories; the paths on their `adr-status.sh` rows) | `## Status`, the `**Layer**` row (read through `adr-status.sh`) | Yes |"
+     ],
+     "reason": "adr-location-am40",
+     "supersedes": [
+      "adr-location-am39"
+     ]
     }
    ]
   },
@@ -6354,7 +7255,7 @@
    ]
   },
   ".claude/skills/setup-engine/references/custom.md": {
-   "id": "a1f1ded9f79bf415",
+   "id": "bd670c260167516f",
    "base": [
     0,
     0
@@ -6682,6 +7583,7 @@
     "",
     "Recommend, in this order:",
     "1. The first ADRs, with `/architecture-decision` in its engine mode (written to",
+    "   the path on `adr-files.sh`'s `new` row, default",
     "   `docs/architecture/adr-NNNN-<slug>.md`, each reviewed by CEA-ADR): the",
     "   module layout under `engine/` and the dependency direction between modules",
     "   (engine never depends on `game/`), memory ownership and allocators, the job",
@@ -6762,9 +7664,9 @@
     "own API.",
     ""
    ],
-   "reason": "custom-setup-reference-am35",
+   "reason": "custom-setup-reference-am39",
    "supersedes": [
-    "custom-setup-reference-am32"
+    "custom-setup-reference-am35"
    ]
   }
  }

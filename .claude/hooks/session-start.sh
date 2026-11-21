@@ -419,10 +419,17 @@ if [ "$_SS_ENG" = "custom" ]; then
         _SS_FPS=$(get_effective_yaml_key performance.target_framerate 2>/dev/null)
         _SS_FBM=$(get_effective_yaml_key performance.frame_budget_ms 2>/dev/null)
         echo "Frame budget: target_framerate ${_SS_FPS:-NOT SET}, frame_budget_ms ${_SS_FBM:-NOT SET}"
+        # The ADR location is docs.adr_dir/docs.adr_glob (adr_files, yaml-helper.sh).
+        _SS_ADRS=""
+        command -v adr_location >/dev/null 2>&1 && adr_location && _SS_ADRS=$(adr_files)
         if [ ! -f .claude/scripts/adr-status.sh ]; then
             echo "Accepted ADRs: NOT ASSESSED (.claude/scripts/adr-status.sh is missing)"
-        elif ! ls docs/architecture/adr-*.md >/dev/null 2>&1; then
-            echo "Accepted ADRs: none (no docs/architecture/adr-*.md)"
+        elif ! command -v adr_files >/dev/null 2>&1; then
+            echo "Accepted ADRs: NOT ASSESSED (.claude/hooks/yaml-helper.sh is missing)"
+        elif [ -n "$_YH_ADR_WHY" ]; then
+            echo "Accepted ADRs: NOT ASSESSED ($_YH_ADR_WHY)"
+        elif [ -z "$_SS_ADRS" ]; then
+            echo "Accepted ADRs: none (no $_YH_ADR_DIR/$_YH_ADR_GLOB)"
         else
             _SS_ADR=$(bash .claude/scripts/adr-status.sh --root . 2>/dev/null)
             _SS_ADR_RC=$?

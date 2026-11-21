@@ -3,7 +3,7 @@ name: project-stage-detect
 description: "Analyze project state, detect stage, identify gaps, recommend next steps. 'Where are we in development?'"
 argument-hint: "[optional: role filter like 'programmer' or 'designer']"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Bash(bash "*/.claude/skills/project-stage-detect/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh), Bash(bash ".claude/scripts/artifact-check.sh"), Bash(bash ./.claude/scripts/artifact-check.sh), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash ".claude/scripts/artifact-check.sh" *), Bash(bash ./.claude/scripts/artifact-check.sh *)
+allowed-tools: Read, Glob, Grep, Write, Bash(bash "*/.claude/skills/project-stage-detect/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/artifact-check.sh), Bash(bash ".claude/scripts/artifact-check.sh"), Bash(bash ./.claude/scripts/artifact-check.sh), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash ".claude/scripts/artifact-check.sh" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(bash .claude/scripts/adr-files.sh *)
 model: haiku
 # Read-only diagnostic skill — no specialist agent delegation needed
 ---
@@ -115,7 +115,8 @@ track, and the judgement calls.
 - Assess if prototypes are archived or active
 
 **Architecture Docs** (`docs/architecture/`):
-- Count ADRs (Architecture Decision Records)
+- Count ADRs (Architecture Decision Records): the `file` rows of
+  `bash .claude/scripts/adr-files.sh list`, whose `dir` row is `<adr dir>`
 - Check for overview/index documents
 
 **Tests** (`tests/`):
@@ -174,7 +175,7 @@ for gaps the tier above says to surface):
 
 - "I see combat code (`<code root>/gameplay/combat/`) but no `design/gdd/combat-system.md`. Was this prototyped first, or should we reverse-document?"
 - "You have 15 ADRs but no architecture overview. Should I create one to help new contributors?"
-- (`standard`/`full` only) "I see [N] systems under `<code root>/` but no ADRs in `docs/architecture/`. Were those decisions recorded somewhere else, or should we write the critical ones with `/architecture-decision`?"
+- (`standard`/`full` only) "I see [N] systems under `<code root>/` but no ADRs in `<adr dir>/`. Were those decisions recorded somewhere else, or should we write the critical ones with `/architecture-decision`?"
 - (`standard`/`full` only) "No sprint plans in `production/`. Are you tracking work elsewhere (Jira, Trello, etc.)?"
 - "I found a game concept but no systems index. Have you decomposed the concept into individual systems yet, or should we run `/map-systems`?"
 - "Prototypes directory has 3 projects with no READMEs. Were these experiments, or do they need documentation?"

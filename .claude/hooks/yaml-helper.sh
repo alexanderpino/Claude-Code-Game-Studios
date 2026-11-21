@@ -1688,6 +1688,91 @@ resolve_test_root() {
   if [ -n "$root" ]; then printf '%s\t%s' "$root" "$_YH_ESRC"; else printf '\tunset'; fi
 }
 
+# Where the ADRs are (effects-map.md, docs.adr_dir and docs.adr_glob).
+ADR_DIR_DEFAULT="docs/architecture"
+ADR_GLOB_DEFAULT="adr-*.md"
+ADR_MATCH_DEFAULT="[Aa][Dd][Rr]-*.[Mm][Dd]"
+
+# adr_location -- docs.adr_dir and docs.adr_glob from ./project.yaml (run from the
+# project root) into _YH_ADR_DIR and _YH_ADR_GLOB, each one's source (the key, or
+# default) into _YH_ADR_DIR_SRC and _YH_ADR_GLOB_SRC, the pattern spelled for a
+# case-sensitive glob (_yh_any_case) into _YH_ADR_MATCH, and why a value cannot
+# be used into _YH_ADR_WHY, with status 1. project.yaml only, like engine.*; a bad
+# value never falls back to the default, which would list no ADRs and read as none.
+# The folder takes engine.code_root's checks, with no framework folder denied.
+adr_location() {
+  local line ov="" v chk tab='	' awkf="$_YH_DIR/../scripts/yaml-get.awk"
+  _YH_ADR_DIR="$ADR_DIR_DEFAULT"; _YH_ADR_GLOB="$ADR_GLOB_DEFAULT"; _YH_ADR_MATCH="$ADR_MATCH_DEFAULT"
+  _YH_ADR_DIR_SRC=default; _YH_ADR_GLOB_SRC=default; _YH_ADR_WHY=""
+  [ -f project.yaml ] || return 0
+  # Bash only until a key is there: statusline.sh calls this on every turn.
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in *adr_*:*) ov=1; break ;; esac
+  done < project.yaml
+  [ -n "$ov" ] || return 0
+  if [ ! -f "$awkf" ]; then _YH_ADR_WHY="docs.adr_dir: $awkf is missing"; return 1; fi
+  v=$(YG_PATH=docs.adr_dir LC_ALL=C awk -f "$awkf" project.yaml 2>/dev/null | tr -d '\r')
+  # The reader drops quotes, so a flow list and a quoted placeholder look alike:
+  # neither is one folder, and engine.code_root's check would read both as unset.
+  case "$v" in
+    "["*|"{"*) _YH_ADR_WHY="docs.adr_dir: one folder path, not '$v'"; return 1 ;;
+  esac
+  chk=$(_yh_code_root_check . "$v" docs.adr_dir "")
+  case "$chk" in
+    "") ;;
+    "$tab"*) _YH_ADR_WHY="${chk#"$tab"}"; return 1 ;;
+    *) _YH_ADR_DIR="$chk"; _YH_ADR_DIR_SRC=docs.adr_dir ;;
+  esac
+  v=$(YG_PATH=docs.adr_glob LC_ALL=C awk -f "$awkf" project.yaml 2>/dev/null | tr -d '\r')
+  case "$v" in ""|"~"|null|Null|NULL) return 0 ;; esac
+  # A flow list or mapping, or a placeholder: "{", ", ", or a "[" whose first "]"
+  # ends the value. "[Aa]dr-*.md" is a pattern.
+  case "$v" in
+    "{"*|*", "*) _YH_ADR_WHY="docs.adr_glob: one file-name pattern, not '$v'"; return 1 ;;
+    "["*) [ -n "${v#*]}" ] || { _YH_ADR_WHY="docs.adr_glob: one file-name pattern, not '$v'"; return 1; } ;;
+  esac
+  case "$v" in
+    */*|*\\*) _YH_ADR_WHY="docs.adr_glob: a file-name pattern, without a folder, not '$v'"; return 1 ;;
+  esac
+  _YH_ADR_GLOB="$v"; _YH_ADR_GLOB_SRC=docs.adr_glob
+  _YH_ADR_MATCH=$(_yh_any_case "$v")
+  return 0
+}
+
+# _yh_any_case PATTERN -- PATTERN with each letter outside a [...] class as a
+# class of both its cases (adr-*.md: [Aa][Dd][Rr]-*.[Mm][Dd]), so a
+# case-sensitive glob (find -name, bash, Grep's glob=) matches without regard
+# to case. A class is kept as written. Bash only: statusline.sh runs it.
+_yh_any_case() {
+  local p="$1" out="" c i=0 n=${#1} in=0 pre
+  local lo=abcdefghijklmnopqrstuvwxyz up=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  while [ "$i" -lt "$n" ]; do
+    c="${p:$i:1}"; i=$((i + 1))
+    if [ "$in" = 1 ]; then out="$out$c"; [ "$c" = "]" ] && in=0; continue; fi
+    case "$c" in
+      "[") in=1; out="$out$c"; continue ;;
+    esac
+    pre="${lo%%"$c"*}"
+    if [ "${#pre}" -lt 26 ]; then out="$out[${up:${#pre}:1}$c]"; continue; fi
+    pre="${up%%"$c"*}"
+    if [ "${#pre}" -lt 26 ]; then out="$out[$c${lo:${#pre}:1}]"; continue; fi
+    out="$out$c"
+  done
+  printf '%s' "$out"
+}
+
+# adr_files [DIR] -- the ADRs, one path per line, sorted: the files directly in the
+# ADR folder (or DIR) whose name matches _YH_ADR_MATCH, docs.adr_glob without regard
+# to case, so adr-*.md also matches ADR-0003-x.md. Nothing, and status 1, for a value
+# adr_location cannot use: the caller reports _YH_ADR_WHY as NOT ASSESSED.
+adr_files() {
+  local dir
+  adr_location || return 1
+  dir="${1:-$_YH_ADR_DIR}"
+  [ -d "$dir" ] || return 0
+  find "$dir" -maxdepth 1 -type f -name "$_YH_ADR_MATCH" 2>/dev/null | sed 's|^\./||' | LC_ALL=C sort
+}
+
 # List the child key names of a mapping node (one per line). get_yaml_key
 # deliberately returns nothing for a mapping, so this is how the whole
 # workflow_overrides.system_overrides map gets enumerated in one shot.

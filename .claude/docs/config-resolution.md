@@ -222,6 +222,13 @@ line (below) adds the per-field fallback to `.claude/docs/technical-preferences.
 which also remains the sole source for forbidden patterns and allowed libraries —
 those never migrated.
 
+**`docs.adr_dir` and `docs.adr_glob` are not on the block.** Where the ADRs are
+is read from `project.yaml` only (the keys are locked, like `engine.*`) by
+`bash .claude/scripts/adr-files.sh`, which prints the folder, the pattern, the
+glob that matches them in any case, the name a new ADR takes and the ADR files,
+or `invalid` with the reason
+(`effects-map.md`, `## docs.adr_dir`).
+
 ## Derived lines (named only)
 
 Seven more lines answer steps skills would otherwise work out by hand. Each prints

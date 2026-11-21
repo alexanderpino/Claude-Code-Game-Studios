@@ -15,7 +15,8 @@ Then read silently before presenting anything else.
 - `design/gdd/game-concept.md` (or, at the minimal tier, `design/game-brief.md`) — concept exists?
 - `design/gdd/systems-index.md` — systems index exists?
 - Count GDD files: `design/gdd/*.md` (excluding game-concept.md and systems-index.md)
-- Count ADR files: `docs/architecture/adr-*.md`
+- Count ADR files: the `file` rows of `bash .claude/scripts/adr-files.sh list`
+  (`docs.adr_dir` and `docs.adr_glob`, default `docs/architecture/adr-*.md`)
 - Count story files: `production/epics/**/*.md` (excluding EPIC.md)
 - `project.yaml` (`engine.name`) / `.claude/docs/technical-preferences.md` — engine configured?
 - `docs/engine-reference/` — engine reference docs present?
@@ -53,7 +54,7 @@ If the project appears fresh (no artifacts at all), use `AskUserQuestion`:
    `## Features` (`## MVP` in briefs from before 1.3.0).
 3. Show what was found, grouped by type, each with the place every skill reads
    it from: GDD → `design/gdd/[name].md`; ADR →
-   `docs/architecture/adr-NNNN-[name].md`; story →
+   the `new` row of `adr-files.sh where` (default `docs/architecture/adr-NNNN-[name].md`); story →
    `production/epics/[epic]/story-NNN-[name].md`; concept →
    `design/gdd/game-concept.md`; brief → `design/game-brief.md`. If nothing
    matched, say so, name the folders and headings searched, and offer `/start`.

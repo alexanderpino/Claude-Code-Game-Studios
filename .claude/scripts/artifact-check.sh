@@ -46,6 +46,9 @@
 #   ABSENT        no file matched the glob
 #   SHORT         files matched but fewer than min_count
 #   PATTERN_MISS  files matched but none contained the required pattern
+#   UNKNOWN       not assessed: grep is missing (why=grep-unavailable), or the
+#                 step's glob is {adr} and docs.adr_dir or docs.adr_glob cannot
+#                 be used (why=adr-location-invalid, reason= says why)
 #   NO_CHECK      the step declares no artifact — completion is not detectable
 #                 from disk. NOT the same as ABSENT. A `note=` field carries the
 #                 catalog's human-readable fallback where one exists.
@@ -141,14 +144,29 @@ if [ -z "$PYBIN" ]; then
   exit 1
 fi
 
-"$PYBIN" - "$CATALOG" "$ROOT" "$PHASE_FILTER" "$PATH_FILTER" "$ENGINE_NAME" "$ENGINE_SRC" <<'PYEOF'
+# The ADRs, for a step whose glob is the catalog's {adr} token: adr-files.sh's
+# rows (docs.adr_dir and docs.adr_glob), or none when it cannot run.
+ADR_LOC=""
+[ -f "$SCRIPT_DIR/adr-files.sh" ] && ADR_LOC=$(bash "$SCRIPT_DIR/adr-files.sh" --root "$ROOT" list 2>/dev/null)
+
+"$PYBIN" - "$CATALOG" "$ROOT" "$PHASE_FILTER" "$PATH_FILTER" "$ENGINE_NAME" "$ENGINE_SRC" "$ADR_LOC" <<'PYEOF'
 import glob as globmod
 import os
 import subprocess
 import sys
 import tempfile
 
-catalog_path, root, phase_filter, path_filter, engine_name, engine_src = sys.argv[1:7]
+catalog_path, root, phase_filter, path_filter, engine_name, engine_src, adr_loc = sys.argv[1:8]
+
+# `glob: "{adr}"` in the catalog is the project's ADR files, as adr-files.sh
+# lists them; the step shows their folder and pattern in place of the token.
+ADR_TOKEN = "{adr}"
+adr_rows = [r.split("\t") for r in adr_loc.replace("\r", "").splitlines() if "\t" in r]
+adr_val = {r[0]: r[1] for r in adr_rows if r[0] in ("dir", "glob", "invalid")}
+ADR_FILES = [os.path.join(root, r[1].replace("/", os.sep)) for r in adr_rows if r[0] == "file"]
+ADR_INVALID = adr_val.get("invalid") or (None if "dir" in adr_val else "adr-files.sh listed nothing")
+ADR_SCOPE = ADR_TOKEN if ADR_INVALID else (
+    adr_val["glob"] if adr_val["dir"] == "." else adr_val["dir"] + "/" + adr_val["glob"])
 
 # A gate's own output path is part of the gate: the catalog's `note:` fields
 # contain em-dashes, and on a cp1252 console an unreconfigured stdout raises
@@ -241,6 +259,8 @@ for raw in lines:
             ctx = "any_of"
         elif s.startswith("glob:"):
             art["glob"] = strip_val(s[len("glob:"):]); ctx = "artifact"
+            if art["glob"] == ADR_TOKEN:
+                art["glob"], art["adr"] = ADR_SCOPE, True
         elif s.startswith("pattern:"):
             art["pattern"] = strip_val(s[len("pattern:"):]); ctx = "artifact"
         elif s.startswith("min_count:"):
@@ -326,7 +346,9 @@ def evaluate(art):
     if not art["glob"]:
         return "NO_CHECK", "none", ({"note": art["note"]} if art["note"] else {})
 
-    files = match_files(art["glob"])
+    if art.get("adr") and ADR_INVALID:
+        return "UNKNOWN", "glob", {"why": "adr-location-invalid", "reason": ADR_INVALID}
+    files = sorted(ADR_FILES) if art.get("adr") else match_files(art["glob"])
     if not files:
         return "ABSENT", "glob", {"glob": art["glob"]}
 

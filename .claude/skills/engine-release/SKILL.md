@@ -4,7 +4,7 @@ description: "Custom engine: cut an engine version for the game teams — semver
 argument-hint: "[version] [--from <tag>] [--lts] [--patch-of <release-branch>]"
 user-invocable: true
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Write, Agent, AskUserQuestion, Bash(git log *), Bash(git rev-parse *), Bash(git tag --list*), Bash(git branch --list *), Bash(git status *), Bash(bash .claude/scripts/test-run.sh custom), Bash(bash "*/.claude/skills/engine-release/../../hooks/yaml-helper.sh" resolve_config *)
+allowed-tools: Read, Glob, Grep, Write, Agent, AskUserQuestion, Bash(git log *), Bash(git rev-parse *), Bash(git tag --list*), Bash(git branch --list *), Bash(git status *), Bash(bash .claude/scripts/test-run.sh custom), Bash(bash "*/.claude/skills/engine-release/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/adr-files.sh list), Bash(bash .claude/scripts/adr-files.sh where)
 model: sonnet
 ---
 

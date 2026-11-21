@@ -62,7 +62,7 @@ Reviewed commits: [every full hash of git log --format=%H <base-hash>..<head-has
 | C++ public surface | FOUND [n modules] / ABSENT | engine/**/include/, *.cppm/*.ixx |
 | Rust public surface | FOUND [n crates, read by: listing / source] / ABSENT / NOT ASSESSED — reason | [workspace Cargo.toml] |
 | Engine release tags | FOUND [list] / none tagged | git tag --list |
-| ADRs cited | [ADR ids with Status] / none | docs/architecture/ |
+| ADRs cited | [ADR ids with Status] / none | adr-files.sh list |
 | Migration note | FOUND / ABSENT / DRAFT / not needed | [path] |
 
 Changed files not public: [n] [names when ≤ 10]

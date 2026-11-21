@@ -24,7 +24,7 @@ and the exact replacement text. Offer to fix this immediately before writing the
 
 **Special case — ADRs missing Status field:**
 For each affected ADR, the fix is:
-`/architecture-decision retrofit docs/architecture/adr-[NNNN]-[slug].md`
+`/architecture-decision retrofit [ADR path]`, the path `adr-files.sh list` gives
 List each ADR as a separate checkable item.
 
 **Special case — GDDs missing sections:**

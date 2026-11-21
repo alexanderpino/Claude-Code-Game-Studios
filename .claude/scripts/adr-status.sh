@@ -19,7 +19,8 @@
 # Usage: bash .claude/scripts/adr-status.sh [--root DIR] [ID|PATH ...]
 #   ID          ADR-0003, adr-0003 or 0003: the ADR whose file name carries it
 #   PATH        an ADR file, relative to the root or absolute
-#   (none)      every docs/architecture/adr-*.md (one level, as adr-dep-graph.sh)
+#   (none)      every ADR: the files adr-files.sh lists (docs.adr_dir and
+#               docs.adr_glob, default docs/architecture/adr-*.md)
 #   --root DIR  the project; defaults to the repo this script is in
 #   -h, --help  this text
 # An ADR named more than once (by ID, number or path) is reported once.
@@ -31,9 +32,13 @@
 #   ADR <id> <path> <status> <layer> <date> <last_verified> <version>
 #       <depends_on> <superseded_by> <missing> <unfilled>
 #   NOT_FOUND <ID or PATH>          for an argument that names no ADR
+#   NOT_ASSESSED <reason>           alone, when docs.adr_dir or docs.adr_glob
+#                                   cannot be used (adr-files.sh's `invalid`)
 # Columns (`-` means not there):
 #   status        Accepted | Proposed | Deprecated | Superseded: the first word
-#                 under `## Status`; UNFILLED while it is still the template's
+#                 under `## Status`, any case, punctuation after it dropped
+#                 (`Accepted.`); without that section, the `status:` value of
+#                 YAML front matter; UNFILLED while it is still the template's
 #                 [bracket]; OTHER for anything else
 #   layer         the `**Layer**` row's value, or UNFILLED
 #   date, last_verified   the first YYYY-MM-DD under `## Date` and `## Last
@@ -53,7 +58,8 @@
 #
 # Exit codes: 0 every ADR asked for was read; 1 the root cannot be read;
 # 2 usage error; 3 an ID or PATH named no ADR (its NOT_FOUND row is printed,
-# the others are still reported). Reads only; never writes, never prompts.
+# the others are still reported); 4 the ADR location cannot be used (its
+# NOT_ASSESSED row is printed). Reads only; never writes, never prompts.
 #
 # bash 3.2 and BWK awk safe, no Python.
 
@@ -62,6 +68,7 @@ set -u
 LC_ALL=C
 export LC_ALL
 
+HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT_ARG=""
 ARGS=""
 NL='
@@ -81,16 +88,27 @@ done
 if [ -n "$ROOT_ARG" ]; then
   cd "$ROOT_ARG" 2>/dev/null || { echo "adr-status: cannot read root $ROOT_ARG" >&2; exit 1; }
 else
-  cd "$(dirname "$0")/../.." 2>/dev/null || { echo "adr-status: cannot reach the repo root" >&2; exit 1; }
+  cd "$HERE/../.." 2>/dev/null || { echo "adr-status: cannot reach the repo root" >&2; exit 1; }
 fi
 
-ADR_DIR="docs/architecture"
+# The ADRs and their location, from adr-files.sh; loc KIND prints its rows' value.
+LOC=$(bash "$HERE/adr-files.sh" --root . list)
+LOC_RC=$?
+loc() { printf '%s\n' "$LOC" | awk -F'\t' -v k="$1" '$1 == k { print $2 }'; }
+case $LOC_RC in
+  0) ;;
+  3) printf 'NOT_ASSESSED\t%s\n' "$(loc invalid)"; exit 4 ;;
+  *) echo "adr-status: adr-files.sh could not list the ADRs" >&2; exit 1 ;;
+esac
+ADR_DIR=$(loc dir)
+ADR_GLOB=$(loc glob)
 TEMPLATE=".claude/docs/templates/architecture-decision-record.md"
 # adr_id PATH — adr-dep-graph.sh's id: the first adr-<digits> in the name, lower case.
 adr_id() { printf '%s\n' "${1##*/}" | tr '[:upper:]' '[:lower:]' | grep -oE 'adr-[0-9]+' | head -1; }
 
-FILES=""; MISSED=""; SCOPE="$ADR_DIR/adr-*.md"
-ALL=$(find "$ADR_DIR" -maxdepth 1 -type f -name 'adr-*.md' 2>/dev/null | sort)
+FILES=""; MISSED=""; SCOPE="$ADR_DIR/$ADR_GLOB"
+[ "$ADR_DIR" = . ] && SCOPE="$ADR_GLOB"
+ALL=$(loc file)
 # add_file PATH — onto FILES unless that file is there already, under any
 # spelling (-ef: the same file, whether named by ID, ./path or absolute path).
 add_file() {
@@ -185,18 +203,24 @@ TPL="$TPL_ARG" SCOPE="$SCOPE" awk '
   function cell2(s,    n, c) { n = split(s, c, "|"); return n >= 3 ? trim(c[3]) : "" }
   function value_of(raw) { return (raw == "") ? "-" : raw }
 
-  function flush(    st, w, sb, ver, miss, i, t) {
+  # The status its first word names (punctuation after it dropped); a
+  # Superseded status also sets sb, the ADR it names.
+  function status_of(s,    w) {
+    w = s; gsub(/[*_`]/, "", w); w = tolower(trim(w)); sub(/[^a-z].*$/, "", w)
+    if (w == "accepted") return "Accepted"
+    if (w == "proposed") return "Proposed"
+    if (w == "deprecated") return "Deprecated"
+    if (w == "superseded") { sb = adr_ids(s); if (sb == "") sb = "-"; else sub(/,.*/, "", sb); return "Superseded" }
+    if (substr(trim(s), 1, 1) == "[") return "UNFILLED"
+    return "OTHER"
+  }
+
+  function flush(    st, ver, miss, i, t) {
     if (cur == "") return
     st = "-"; sb = "-"
-    if (status_line != "") {
-      w = status_line; gsub(/[*_`]/, "", w); w = tolower(trim(w)); sub(/[^a-z].*$/, "", w)
-      if (w == "accepted") st = "Accepted"
-      else if (w == "proposed") st = "Proposed"
-      else if (w == "deprecated") st = "Deprecated"
-      else if (w == "superseded") { st = "Superseded"; sb = adr_ids(status_line); if (sb == "") sb = "-"; else sub(/,.*/, "", sb) }
-      else if (substr(trim(status_line), 1, 1) == "[") st = "UNFILLED"
-      else st = "OTHER"
-    } else if ("status" in has) st = "OTHER"
+    if (status_line != "") st = status_of(status_line)
+    else if ("status" in has) st = "OTHER"
+    else if (fm_status != "") st = status_of(fm_status)
     cnt[st == "-" ? "no_status" : tolower(st)]++
     d = (date_line == "") ? (("date" in has) ? "UNFILLED" : "-") : (first_date(date_line) != "" ? first_date(date_line) : "UNFILLED")
     lv = (lv_line == "") ? (("last verified" in has) ? "UNFILLED" : "-") : (first_date(lv_line) != "" ? first_date(lv_line) : "UNFILLED")
@@ -219,7 +243,7 @@ TPL="$TPL_ARG" SCOPE="$SCOPE" awk '
 
   function begin(f) {
     flush()
-    infence = ""; incomment = 0; sec = ""
+    infence = ""; incomment = 0; sec = ""; infm = 0; fm_status = ""
     if (f == "./" tpl) { intpl = 1 } else {
       intpl = 0; cur = f; cur_path = f; sub(/^\.\//, "", cur_path)
       # The id adr-dep-graph.sh uses: the first adr-<digits> in the file name, lower case.
@@ -237,6 +261,17 @@ TPL="$TPL_ARG" SCOPE="$SCOPE" awk '
   FNR == 1 { reach(FILENAME); begin(FILENAME) }
   {
     line = $0; sub(/\r$/, "", line)
+    # YAML front matter: a --- first line, to the next --- or ...; only its
+    # status: value is read, and none of it is a heading or a template line.
+    if (FNR == 1 && line == "---" && !intpl) { infm = 1; next }
+    if (infm) {
+      if (line == "---" || line == "...") infm = 0
+      else if (fm_status == "" && line ~ /^[Ss][Tt][Aa][Tt][Uu][Ss][ \t]*:/) {
+        fm_status = line; sub(/^[^:]*:/, "", fm_status); fm_status = trim(fm_status)
+        gsub(/^["\047]|["\047]$/, "", fm_status)
+      }
+      next
+    }
     if (infence) { if (closes(line, infence)) infence = ""; next }
     f = fence_of(line); if (f != "") { infence = f; next }
     cstart = incomment; rest = ""; s = line

@@ -72,10 +72,17 @@ if [ "$_PC_ENG" = "custom" ]; then
         _PC_FPS=$(get_effective_yaml_key performance.target_framerate 2>/dev/null)
         _PC_FBM=$(get_effective_yaml_key performance.frame_budget_ms 2>/dev/null)
         echo "    frame budget: target_framerate ${_PC_FPS:-NOT SET} / frame_budget_ms ${_PC_FBM:-NOT SET}"
+        # The ADR location is docs.adr_dir/docs.adr_glob (adr_files, yaml-helper.sh).
+        _PC_ADRS=""
+        command -v adr_location >/dev/null 2>&1 && adr_location && _PC_ADRS=$(adr_files)
         if [ ! -f .claude/scripts/adr-status.sh ]; then
             echo "    accepted ADRs: NOT ASSESSED (.claude/scripts/adr-status.sh is missing)"
-        elif ! ls docs/architecture/adr-*.md >/dev/null 2>&1; then
-            echo "    accepted ADRs: none (no docs/architecture/adr-*.md)"
+        elif ! command -v adr_files >/dev/null 2>&1; then
+            echo "    accepted ADRs: NOT ASSESSED (.claude/hooks/yaml-helper.sh is missing)"
+        elif [ -n "$_YH_ADR_WHY" ]; then
+            echo "    accepted ADRs: NOT ASSESSED ($_YH_ADR_WHY)"
+        elif [ -z "$_PC_ADRS" ]; then
+            echo "    accepted ADRs: none (no $_YH_ADR_DIR/$_YH_ADR_GLOB)"
         else
             _PC_ACC=$(bash .claude/scripts/adr-status.sh --root . 2>/dev/null \
                       | awk -F'\t' '$1 == "ADR" && $4 == "Accepted" { print $3 }')

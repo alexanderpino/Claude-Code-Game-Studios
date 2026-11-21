@@ -128,6 +128,9 @@ SEARCH = "searches file contents"
 ASK = "asks the user (automation-modes.md)"
 CONFIG = "reads project.yaml through the helper's resolve_config"
 WRITE_REPORT = "writes its report after the user says yes"
+# AM40: the exact adr-files.sh commands the new skills run.
+ADR_FILES_LIST = "Bash(bash .claude/scripts/adr-files.sh list)"
+ADR_FILES_WHERE = "Bash(bash .claude/scripts/adr-files.sh where)"
 NEW_SKILL_ALLOWED_TOOLS = {
     "api-review": {
         "Read": READ, "Glob": FIND, "Grep": SEARCH, "AskUserQuestion": ASK,
@@ -141,6 +144,8 @@ NEW_SKILL_ALLOWED_TOOLS = {
         "Bash(git tag --list*)": "lists engine release tags for the report",
         "Bash(git status *)": "lists untracked public files for --working-tree",
         'Bash(bash "*/.claude/skills/api-review/../../hooks/yaml-helper.sh" resolve_config *)': CONFIG,
+        ADR_FILES_LIST: "lists the ADRs (SKILL.md, Phase 1)",
+        ADR_FILES_WHERE: "Greps the ADRs on the `match` row (surface.md)",
     },
     "benchmark-report": {
         "Read": READ, "Glob": FIND, "Grep": SEARCH, "AskUserQuestion": ASK, "Write": WRITE_REPORT,
@@ -162,6 +167,8 @@ NEW_SKILL_ALLOWED_TOOLS = {
         "Bash(git status *)": "checks the candidate checkout and build inputs are clean",
         "Bash(bash .claude/scripts/test-run.sh custom)": "Phase 4 runs the integration test (test-run.sh custom)",
         'Bash(bash "*/.claude/skills/engine-release/../../hooks/yaml-helper.sh" resolve_config *)': CONFIG,
+        ADR_FILES_LIST: "lists the ADRs whose changes inventory.md 2c reads",
+        ADR_FILES_WHERE: "names the ADR folder for inventory.md 2c's git log",
     },
     "memory-audit": {
         "Read": READ, "Glob": FIND, "Grep": SEARCH, "AskUserQuestion": ASK, "Write": WRITE_REPORT,
@@ -250,9 +257,11 @@ TEST_RUN_CUSTOM = "Bash(bash .claude/scripts/test-run.sh custom)"
 TEST_RUN_CUSTOM_NO_BUILD = "Bash(bash .claude/scripts/test-run.sh custom --no-build)"
 TEST_SCAFFOLD_CUSTOM = "Bash(bash .claude/scripts/test-scaffold.sh custom*)"
 TOOLCHAIN_VERSION = "setup-engine/references/custom.md: records the toolchain versions it detects"
+# AM40: the skills that run the ADR location helpers (docs.adr_dir, docs.adr_glob).
+ADR_FILES = "Bash(bash .claude/scripts/adr-files.sh *)"
+ADR_STATUS = "Bash(bash .claude/scripts/adr-status.sh *)"
 SHARED_SKILL_TOOL_ADDITIONS = {
     "dev-story": {TEST_RUN_CUSTOM: "Custom stories verify through test-run.sh custom (SKILL.md, Custom step)"},
-    "gate-check": {TEST_RUN_CUSTOM: "the gate files' Custom engine additions run the engine tests"},
     "smoke-check": {TEST_RUN_CUSTOM: "Phase 2 reads the Custom test rule row (references/2-run-tests.md)"},
     "test-setup": {TEST_SCAFFOLD_CUSTOM: "scaffolds the Custom test folders and CI workflow",
                    TEST_RUN_CUSTOM: "runs the scaffolded tests through the helper (references/3-directories.md, Custom)"},
@@ -262,7 +271,18 @@ SHARED_SKILL_TOOL_ADDITIONS = {
         "Bash(clang++ --version)": TOOLCHAIN_VERSION, "Bash(g++ --version)": TOOLCHAIN_VERSION,
         TEST_RUN_CUSTOM_NO_BUILD: "Custom setup runs the tests after its build (references/custom.md, --no-build)",
         TEST_SCAFFOLD_CUSTOM: "Custom setup scaffolds the test folders (references/custom.md)",
+        ADR_FILES: "references/custom.md names the first ADRs on adr-files.sh's `new` row",
     },
+    "adopt": {ADR_FILES: "references/1-detect.md counts the ADRs adr-files.sh lists"},
+    "architecture-decision": {ADR_FILES: "the next ADR number and the new ADR's path (SKILL.md, references/0-accept.md)"},
+    "architecture-review": {ADR_FILES: "every phase uses adr-files.sh's `match` row (SKILL.md, Where the ADRs are)"},
+    "create-architecture": {ADR_FILES: "references/0-load-context.md greps the ADRs on the `match` row"},
+    "design-system": {ADR_FILES: "references/2-gather-context.md and 4-section-design.md read the ADRs it lists"},
+    "gate-check": {TEST_RUN_CUSTOM: "the gate files' Custom engine additions run the engine tests",
+                   ADR_FILES: "the gate files count and read the ADRs adr-files.sh lists"},
+    "next-step": {ADR_FILES: "Step 2's ladder asks whether adr-files.sh lists an ADR"},
+    "project-stage-detect": {ADR_FILES: "the Architecture Docs scan counts the ADRs adr-files.sh lists"},
+    "code-review": {ADR_STATUS: "finds a referenced ADR's file wherever docs.adr_dir keeps it"},
 }
 # P3: the allocator agent pads with the concurrency agent's per-target constant.
 ALLOCATOR_AGENT = ".claude/agents/memory-allocator-specialist.md"

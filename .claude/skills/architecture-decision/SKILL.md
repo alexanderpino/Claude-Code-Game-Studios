@@ -3,7 +3,7 @@ name: architecture-decision
 description: "Create an ADR documenting a technical decision: context, alternatives considered, consequences."
 argument-hint: "[title | retrofit <path> | accept <ADR-id>] [--engine-internal] [--review full|lean|solo]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(wc -c *), Bash(bash "*/.claude/skills/architecture-decision/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/registry.sh *)
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Bash(wc -c *), Bash(bash "*/.claude/skills/architecture-decision/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/registry.sh *), Bash(bash .claude/scripts/adr-files.sh *)
 model: sonnet
 ---
 
@@ -83,7 +83,10 @@ Use the user's response as the title, then proceed to Step 1.
 
 ## 2. Determine the next ADR number
 
-Scan `docs/architecture/` for existing ADRs to find the next number.
+Scan the ADRs for the next number: `bash .claude/scripts/adr-files.sh list` lists
+them (`docs.adr_dir` and `docs.adr_glob`, default `docs/architecture/adr-*.md`),
+and its `new` row is the new ADR's path. Where a reference file names an existing
+ADR `docs/architecture/[adr-file].md`, use its path on a `file` row instead.
 
 ---
 
@@ -104,7 +107,7 @@ Scan `docs/architecture/` for existing ADRs to find the next number.
 After the ADR is written (and registry optionally updated), close with `AskUserQuestion`.
 
 Before generating the widget:
-1. Read the `## Required ADRs` section of `docs/architecture/architecture.md` (by section) and list `docs/architecture/adr-*.md`: a required ADR with no file is still unwritten. Without `architecture.md`, look for ADRs flagged in technical-preferences.md or systems-index.md as prerequisites
+1. Read the `## Required ADRs` section of `docs/architecture/architecture.md` (by section) and list the ADRs (`bash .claude/scripts/adr-files.sh list`): a required ADR with no file is still unwritten. Without `architecture.md`, look for ADRs flagged in technical-preferences.md or systems-index.md as prerequisites
 2. Check if all prerequisite ADRs are now written. If yes, include a "Start writing GDDs" option.
 3. List ALL remaining priority ADRs as individual options — not just the next one or two.
 

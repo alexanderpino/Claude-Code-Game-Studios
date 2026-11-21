@@ -14,12 +14,16 @@
 # cycles because the graph is clean" distinguishable from "no cycles because
 # half the ADRs have no dependency section, or never filled it in".
 #
-# Usage: bash .claude/scripts/adr-dep-graph.sh [adr-dir]
-#   adr-dir defaults to docs/architecture (relative to repo root). An explicit
-#   dir (used by the test suite) is taken as-is.
+# Usage: bash .claude/scripts/adr-dep-graph.sh [--root DIR] [adr-dir]
+#   The ADRs are the files adr-files.sh lists: docs.adr_dir and docs.adr_glob,
+#   default docs/architecture/adr-*.md. An explicit adr-dir (used by the test
+#   suite) is taken as-is, with the project's pattern. --root DIR is the
+#   project, by default the repo this script is in.
 #
 # Output:
 #   ADRS: <n>
+#   ADRS: NOT ASSESSED (<reason>)  alone, exit 3, when docs.adr_dir or
+#                                 docs.adr_glob cannot be used
 #   EDGES:                        one "adr-A -> adr-B" per Depends-On reference
 #     (or "  (none)")
 #   NO_DEPS_SECTION: adr-X, ...   ADRs with no `## ADR Dependencies` / no Depends On
@@ -51,28 +55,51 @@
 #   - The Depends On row is read as adr-status.sh reads it: every ADR-N on the
 #     row is an edge, and the value cell decides placeholder versus none.
 
-case "${1:-}" in
-  -h|--help) sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-esac
+HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT_ARG=""
+DIR_ARG=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help) sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --root)
+            [ $# -ge 2 ] || { echo "adr-dep-graph: --root needs a value" >&2; exit 2; }
+            ROOT_ARG="$2"; shift 2 ;;
+        --root=*) ROOT_ARG="${1#--root=}"; shift ;;
+        *) DIR_ARG="$1"; shift ;;
+    esac
+done
 
 set -u
 
-# Default to the repo's ADR dir; an explicit arg (absolute or CWD-relative, used
-# by the suite) is taken as-is without cd-ing to the repo root.
-if [ -n "${1:-}" ]; then
-    ADR_DIR="$1"
-else
-    cd "$(dirname "$0")/../.." || { echo "adr-dep-graph: cannot reach repo root" >&2; exit 1; }
-    ADR_DIR="docs/architecture"
-fi
-
-# Normalise any adr reference (filename or "ADR-0003") to `adr-0003`.
+# Normalise any adr reference (filename or "ADR-0003") to `adr-0003`, from the
+# file name only: a folder such as docs/adr-2024/ is not the ADR's id.
 adr_id() {
-    printf '%s' "$1" | grep -oiE 'adr-[0-9]+' | head -1 | tr 'A-Z' 'a-z'
+    printf '%s' "${1##*/}" | grep -oiE 'adr-[0-9]+' | head -1 | tr 'A-Z' 'a-z'
 }
 
-adr_files=$(find "$ADR_DIR" -maxdepth 1 -name 'adr-*.md' -type f 2>/dev/null \
-            | sed 's|\\|/|g' | sort)
+# The ADRs from adr-files.sh. An explicit dir (absolute or CWD-relative, used by
+# the suite) is listed as given, without cd-ing to the root.
+if [ -n "$DIR_ARG" ]; then
+    ADR_DIR="$DIR_ARG"
+    case "$DIR_ARG" in /*|[A-Za-z]:*) ;; *) DIR_ARG="$PWD/$DIR_ARG" ;; esac
+    loc=$(bash "$HERE/adr-files.sh" --root "${ROOT_ARG:-$HERE/../..}" --dir "$DIR_ARG" list)
+    loc_rc=$?
+else
+    if [ -n "$ROOT_ARG" ]; then
+        cd "$ROOT_ARG" 2>/dev/null || { echo "adr-dep-graph: cannot read root $ROOT_ARG" >&2; exit 1; }
+    else
+        cd "$HERE/../.." || { echo "adr-dep-graph: cannot reach repo root" >&2; exit 1; }
+    fi
+    loc=$(bash "$HERE/adr-files.sh" --root . list)
+    loc_rc=$?
+    ADR_DIR=$(printf '%s\n' "$loc" | awk -F'\t' '$1 == "dir" { print $2 }')
+fi
+case $loc_rc in
+    0) ;;
+    3) echo "ADRS: NOT ASSESSED ($(printf '%s\n' "$loc" | awk -F'\t' '$1 == "invalid" { print $2 }'))"; exit 3 ;;
+    *) echo "adr-dep-graph: adr-files.sh could not list the ADRs" >&2; exit 1 ;;
+esac
+adr_files=$(printf '%s\n' "$loc" | awk -F'\t' '$1 == "file" { print $2 }' | sed 's|\\|/|g')
 
 if [ -z "$adr_files" ]; then
     echo "ADRS: 0"
