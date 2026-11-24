@@ -36,7 +36,8 @@
 #                   the next ID: the highest one seen plus one, so a deleted or
 #                   deprecated ID is never handed out again. KIND and SCOPE:
 #                   tr SLUG   TR-SLUG-NNN, from the TR registry
-#                   adr       ADR-NNNN, from docs/architecture/adr-NNNN-*.md
+#                   adr       ADR-NNNN, from the ADR files adr-files.sh lists
+#                             (default docs/architecture/adr-NNNN-*.md)
 #                   bug       BUG-NNNN, from production/qa/bugs/BUG-*.md
 #                   asset     ASSET-NNN, from design/assets/asset-manifest.md
 #                             and the spec files in design/assets/specs/
@@ -94,10 +95,13 @@
 #       LAYOUT rows, OLD's and NEW's (the path column tells them apart),
 #       then UNQUOTED rows the same way
 #   next-id: next <kind> <scope | -> <id> <highest | -> <ids seen>  (no other row)
+#     or, for adr when docs.adr_dir or docs.adr_glob cannot be used:
+#     NOT_ASSESSED adr <reason>  (exit 5)
 #
 # Exit codes: 0 answered; 1 the root cannot be read; 2 usage error; 3 a NAME
 # matched no entry (its NOT_FOUND row is printed); 4 a registry the command
-# reads has an unsupported layout (its LAYOUT rows are printed). validate and
+# reads has an unsupported layout (its LAYOUT rows are printed); 5 next-id adr
+# found the ADR location unusable (its NOT_ASSESSED row is printed). validate and
 # compare exit 0 whenever they ran: what they find is rows. Reads only; never
 # writes.
 #
@@ -108,6 +112,7 @@ set -u
 LC_ALL=C
 export LC_ALL
 
+HERE="$(cd "$(dirname "$0")" && pwd)"
 usage() { echo "registry: $1 (try --help)" >&2; exit 2; }
 # A system or epic slug: lowercase words joined by single hyphens, as the
 # TR-ID format and the epic folder names write them.
@@ -215,7 +220,7 @@ esac
 if [ -n "$ROOT_ARG" ]; then
   cd "$ROOT_ARG" 2>/dev/null || { echo "registry: cannot read root $ROOT_ARG" >&2; exit 1; }
 else
-  cd "$(dirname "$0")/../.." 2>/dev/null || { echo "registry: cannot reach the repo root" >&2; exit 1; }
+  cd "$HERE/../.." 2>/dev/null || { echo "registry: cannot reach the repo root" >&2; exit 1; }
 fi
 
 # --------------------------------------------------------- next-id, file kinds
@@ -266,11 +271,19 @@ files() {
 }
 
 if [ "$CMD" = next-id ] && [ "$KIND" != tr ]; then
+  if [ "$KIND" = adr ]; then
+    ADR_LOC=$(bash "$HERE/adr-files.sh" --root . list)
+    case $? in
+      0) ;;
+      3) printf 'NOT_ASSESSED\tadr\t%s\n' "$(printf '%s\n' "$ADR_LOC" | awk -F'\t' '$1 == "invalid" { print $2 }')"; exit 5 ;;
+      *) echo "registry: adr-files.sh could not list the ADRs" >&2; exit 1 ;;
+    esac
+  fi
   # Padding per kind is what the skills that number them write: ADR and BUG
   # four digits, the rest three (season none). Starting numbers are 1.
   # (pat) with its opening paren: bash 3.2 misparses a bare pat) inside $( ).
   NLIST=$(case "$KIND" in
-    (adr) files docs/architecture 'adr-*.md' ;;
+    (adr) printf '%s\n' "$ADR_LOC" | awk -F'\t' '$1 == "file" { print $2 }' ;;
     (bug) files production/qa/bugs 'bug-*.md' -i ;;
     (asset) [ -f design/assets/asset-manifest.md ] && echo design/assets/asset-manifest.md
             files design/assets/specs '*.md' ;;
@@ -285,7 +298,7 @@ if [ "$CMD" = next-id ] && [ "$KIND" != tr ]; then
   set -- $NLIST
   set +f; IFS=$OLDIFS
   case "$KIND" in
-    adr) next_seen adr - 'ADR-%04d' names '^adr-[0-9]+' "$@" ;;
+    adr) next_seen adr - 'ADR-%04d' names '^[Aa][Dd][Rr]-[0-9]+' "$@" ;;
     bug) next_seen bug - 'BUG-%04d' names '^[Bb][Uu][Gg]-[0-9]+' "$@" ;;
     asset) next_seen asset - 'ASSET-%03d' text 'ASSET-[0-9]+' "$@" ;;
     td) next_seen td - 'TD-%03d' text 'TD-[0-9]+' "$@" ;;

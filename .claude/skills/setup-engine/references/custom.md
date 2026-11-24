@@ -319,6 +319,7 @@ first engine files are yours to write." Write none of them, and no folder.
 
 Recommend, in this order:
 1. The first ADRs, with `/architecture-decision` in its engine mode (written to
+   the path on `adr-files.sh`'s `new` row, default
    `docs/architecture/adr-NNNN-<slug>.md`, each reviewed by CEA-ADR): the
    module layout under `engine/` and the dependency direction between modules
    (engine never depends on `game/`), memory ownership and allocators, the job

@@ -122,7 +122,8 @@ row; a check that could not run is `NOT ASSESSED — <reason>` on that row.
 3. **Removal window** (`removal`):
    - Find the commit that added the deprecation: `git log -S'<deprecation
      attribute line>' --oneline -- <file>`.
-   - Find the window: Grep `docs/architecture/` for the ADR that sets the
+   - Find the window: Grep the ADRs (`glob=` the `match` row of
+     `bash .claude/scripts/adr-files.sh where`) for the one that sets the
      deprecation window (an `## ABI / API Stability` section's
      **Versioning** line, or a line naming the deprecation window). No ADR sets
      one → `NOT ASSESSED — no deprecation window recorded`, as

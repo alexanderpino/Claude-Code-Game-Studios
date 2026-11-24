@@ -59,8 +59,8 @@ they are the release's breaking-change list.
 
 ### 2c. ADRs in range
 
-`git log --name-only --format= <range> -- docs/architecture/` lists the ADRs
-added or changed. Read each one's Status:
+`git log --name-only --format= <range> -- [adr_dir]/` (the `dir` row of
+`bash .claude/scripts/adr-files.sh where`) lists the ADRs added or changed. Read each one's Status:
 
 - **Accepted** → part of this release. Its `## ABI / API Stability` section
   names API and ABI breaks; a change to an asset or file format it records is a

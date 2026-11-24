@@ -3,7 +3,7 @@ name: next-step
 description: "Names the one next step: make a game, change it after play, grow it, or the next studio-mode step. Use when asked what to do next, or stuck."
 argument-hint: "[optional: what you just finished, e.g. 'finished design-review' or 'stuck on ADRs']"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Bash(bash "*/.claude/skills/next-step/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash "*/.claude/skills/next-step/../../scripts/story-status.sh"), Bash(bash .claude/scripts/story-status.sh*), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash ".claude/scripts/artifact-check.sh" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(git log *)
+allowed-tools: Read, Glob, Grep, Bash(bash "*/.claude/skills/next-step/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash "*/.claude/skills/next-step/../../scripts/story-status.sh"), Bash(bash .claude/scripts/story-status.sh*), Bash(bash .claude/scripts/artifact-check.sh *), Bash(bash ".claude/scripts/artifact-check.sh" *), Bash(bash ./.claude/scripts/artifact-check.sh *), Bash(git log *), Bash(bash .claude/scripts/adr-files.sh *)
 model: haiku
 ---
 
@@ -88,7 +88,8 @@ Otherwise, check in this order:
 2. **If neither is set**, infer phase from artifacts (most-advanced match wins):
    - code root has 10+ source files → `production`
    - `production/epics/**/story-*.md` exists → `pre-production`
-   - `docs/architecture/adr-*.md` exists → `technical-setup`
+   - an ADR exists (`bash .claude/scripts/adr-files.sh list` prints a `file` row;
+     default `docs/architecture/adr-*.md`) → `technical-setup`
    - `design/gdd/systems-index.md` exists → `systems-design`
    - `design/gdd/game-concept.md` (or `design/game-brief.md`) exists → `concept`
    - Nothing → `concept` (fresh project)

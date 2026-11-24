@@ -104,7 +104,7 @@ wrong value diagnosable — `review_mode: solo (rigor:minimal)` when `project.ya
 
 | Step | Source | Applies to |
 |---|---|---|
-| 1 | `project.local.yaml` | any setting on the `/project-settings --local` whitelist (15 keys — `modes.review_mode`, `modes.automation`, `modes.automation_always_ask`, `team.size`, all five `testing.strict.*`, `performance.enforce`, `features.session_state`, `features.token_budget_warn_at`, `features.read_guard`, `features.read_guard_kb`, `updates.check`) |
+| 1 | `project.local.yaml` | any setting on the `/project-settings --local` whitelist (16 keys — `modes.review_mode`, `modes.automation`, `modes.automation_always_ask`, `team.size`, all five `testing.strict.*`, `performance.enforce`, `features.session_state`, `features.token_budget_warn_at`, `features.read_guard`, `features.read_guard_kb`, `features.agent_write_guard`, `updates.check`) |
 | 2 | `project.yaml` | all keys |
 | 3 | legacy plain-text mirror | `modes.review_mode` → `production/review-mode.txt`; `project.stage` → `production/stage.txt` |
 | 4 | **`modes.rigor` expansion** | the six knobs `rigor` fronts — `modes.workflow`, `docs.density`, `qa.level`, `modes.story_granularity`, `modes.review_mode`, `team.size` |
@@ -221,6 +221,13 @@ reports only the *configured state* (`unset` where absent). The `gate_level` lin
 line (below) adds the per-field fallback to `.claude/docs/technical-preferences.md`,
 which also remains the sole source for forbidden patterns and allowed libraries —
 those never migrated.
+
+**`docs.adr_dir` and `docs.adr_glob` are not on the block.** Where the ADRs are
+is read from `project.yaml` only (the keys are locked, like `engine.*`) by
+`bash .claude/scripts/adr-files.sh`, which prints the folder, the pattern, the
+glob that matches them in any case, the name a new ADR takes and the ADR files,
+or `invalid` with the reason
+(`effects-map.md`, `## docs.adr_dir`).
 
 ## Derived lines (named only)
 

@@ -16,6 +16,7 @@
       "Bash(bash .claude/scripts/artifact-check.sh *)",
       "Bash(bash .claude/scripts/adr-status.sh *)",
       "Bash(bash .claude/scripts/adr-dep-graph.sh *)",
+      "Bash(bash .claude/scripts/adr-files.sh *)",
       "Bash(bash .claude/scripts/agent-check.sh *)",
       "Bash(bash .claude/scripts/compat-inventory.sh *)",
       "Bash(bash .claude/scripts/cut-read.sh *)",

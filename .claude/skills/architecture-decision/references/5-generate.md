@@ -262,7 +262,7 @@ If GDD sync issues were found:
 
 If no GDD sync issues:
 - "ADR draft is complete. May I write it?"
-  - [A] Write ADR to `docs/architecture/adr-[NNNN]-[slug].md`
+  - [A] Write ADR to the path on the `new` row of `bash .claude/scripts/adr-files.sh where` (default `docs/architecture/adr-[NNNN]-[slug].md`)
   - [B] Not yet — I need to review further
 
 If yes to any write option, write the file, creating the directory if needed.

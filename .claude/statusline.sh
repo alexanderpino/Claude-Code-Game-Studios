@@ -140,15 +140,25 @@ if [ -z "$stage" ]; then
     src_count=$(cd "$cwd" 2>/dev/null && code_root_find "$code_root" -type f \( -name "*.gd" -o -name "*.cs" -o -name "*.cpp" -o -name "*.h" -o -name "*.py" -o -name "*.rs" -o -name "*.lua" -o -name "*.tscn" -o -name "*.tres" \) | head -n 10 | wc -l | tr -d ' ')
   fi
 
-  # Check for ADRs (signals Pre-Production phase)
+  # Check for ADRs (signals Pre-Production phase), where docs.adr_dir and
+  # docs.adr_glob say (adr_files in yaml-helper.sh). An unusable value leaves
+  # the key in adr_bad: the ADRs are unknown, so no earlier stage is claimed.
   has_adrs=false
-  if ls "$cwd/docs/architecture/"adr-*.md 2>/dev/null | head -1 | grep -q .; then
-    has_adrs=true
+  adr_bad=""
+  if [ "$helper" = true ] && command -v adr_files >/dev/null 2>&1; then
+    adr_seen=$(cd "$cwd" 2>/dev/null || exit 0
+      if adr_location; then adr_files 2>/dev/null | head -1; else printf '\t%s' "${_YH_ADR_WHY%%:*}"; fi)
+    case "$adr_seen" in
+      "	"*) adr_bad="${adr_seen#?}" ;;
+      ?*) has_adrs=true ;;
+    esac
   fi
 
   # Determine stage (check from most-advanced backward)
   if [ "$src_count" -ge 10 ] 2>/dev/null; then
     stage="Production"
+  elif [ -n "$adr_bad" ]; then
+    stage="Stage NOT ASSESSED ($adr_bad)"
   elif [ "$has_adrs" = true ]; then
     stage="Pre-Production"
   elif [ "$engine_configured" = true ]; then

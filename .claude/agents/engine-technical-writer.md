@@ -104,7 +104,7 @@ What you read, and where you write:
 engine/<module>/include/**                      public C++ API (all of include/; a nested module too)
 engine/<module>/src/**                          to verify behaviour claims
 crates/<module>/src/** (public paths from lib.rs) public Rust API
-docs/architecture/adr-*.md                      decisions and their status
+the ADRs (bash .claude/scripts/adr-files.sh)   decisions and their status
 tests/unit/<module>/, tests/integration/        observed behaviour, example sources
 # Write (after asking)
 docs/engine/api/<module>.md                     reference (or generated output config)
